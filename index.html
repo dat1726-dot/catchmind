@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 공평한 턴 배정</title>
+    <title>캐치마인드 - 캐릭터 커스텀 & 8인 배치</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -21,14 +21,10 @@
         #lobbyContainer h1 { font-size: 26px; color: #2c3e50; margin-bottom: 5px; }
         #lobbyContainer p { color: #7f8c8d; font-size: 13px; margin-bottom: 15px; }
         
-        .input-group { margin-bottom: 12px; text-align: left; }
-        .input-group label { display: block; font-size: 12px; font-weight: bold; color: #34495e; margin-bottom: 4px; }
-        .input-group input { width: 100%; padding: 8px 10px; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 14px; outline: none; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 12px; font-weight: bold; color: #34495e; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 9px 10px; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 14px; outline: none; }
         .input-group input:focus { border-color: #4a90e2; }
-
-        .avatar-grid { display: flex; justify-content: space-around; margin-bottom: 15px; }
-        .avatar-option { font-size: 24px; padding: 6px; cursor: pointer; border: 2px solid #bdc3c7; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #ecf0f1; }
-        .avatar-option.selected { border-color: #e74c3c; background: #fadbd8; transform: scale(1.1); }
 
         .room-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
         .room-btn { padding: 10px 4px; background: #ecf0f1; border: 2px solid #bdc3c7; border-radius: 6px; font-weight: bold; cursor: pointer; color: #2c3e50; font-size: 13px; }
@@ -41,10 +37,19 @@
         .btn-enter { width: 100%; padding: 12px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #27ae60; }
         .btn-enter:active { transform: translateY(2px); box-shadow: 0 1px #27ae60; }
 
-        /* 게임 메인 화면 */
-        .game-container { display: none; width: 1000px; max-width: 98vw; height: 640px; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); gap: 10px; padding: 10px; }
+        /* 게임 메인 화면 (좌우 4명씩 총 8인 프로필 배치) */
+        .game-container { display: none; width: 1150px; max-width: 98vw; height: 660px; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); gap: 10px; padding: 10px; align-items: stretch; }
         
-        .left-pane { display: flex; flex-direction: column; width: 620px; gap: 8px; }
+        /* 좌우 프로필 패널 (각각 4명씩 세로 배치) */
+        .side-profiles { width: 180px; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; }
+        .profile-card { background: white; border: 2px solid #2980b9; border-radius: 6px; padding: 8px; text-align: center; height: 18.5%; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .profile-card.active-drawer { border-color: #e74c3c; background: #f9ebea; box-shadow: 0 0 8px rgba(231, 76, 60, 0.5); }
+        .profile-avatar { font-size: 26px; margin-bottom: 2px; }
+        .profile-name { font-size: 12px; font-weight: bold; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-score { font-size: 12px; color: #e67e22; font-weight: bold; }
+
+        /* 중앙 영역 (캔버스 및 툴바) */
+        .center-pane { display: flex; flex-direction: column; width: 560px; gap: 8px; flex-grow: 1; }
         .top-info-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 12px; border: 2px solid #2980b9; border-radius: 6px; font-weight: bold; }
         .word-quiz-box { font-size: 18px; color: #c0392b; letter-spacing: 1px; }
         .timer-box { font-size: 15px; color: #e67e22; background: #fef5e7; padding: 3px 10px; border-radius: 15px; border: 1px solid #f39c12; }
@@ -59,14 +64,10 @@
         .t-btn { padding: 4px 10px; font-size: 12px; font-weight: bold; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 4px; cursor: pointer; }
         .t-btn:hover { background: #bdc3c7; }
 
-        .right-pane { display: flex; flex-direction: column; flex-grow: 1; gap: 8px; }
-        .score-board { background: #fff; border: 2px solid #2980b9; border-radius: 6px; height: 160px; padding: 8px; overflow-y: auto; }
-        .score-board h3 { font-size: 13px; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 4px; margin-bottom: 6px; }
-        .player-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 6px; border-bottom: 1px dashed #ecf0f1; }
-        .player-row.me { background: #ebf5fb; font-weight: bold; color: #2980b9; }
-
+        /* 우측 채팅 및 시작 패널 */
+        .right-pane { display: flex; flex-direction: column; width: 240px; gap: 8px; }
         .action-panel { display: flex; gap: 5px; }
-        .btn-game-start { flex-grow: 1; padding: 8px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 2px #c0392b; }
+        .btn-game-start { flex-grow: 1; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 2px #c0392b; }
         .btn-game-start:active { transform: translateY(1px); box-shadow: none; }
 
         .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #fff; border: 2px solid #2980b9; border-radius: 6px; overflow: hidden; }
@@ -89,16 +90,11 @@
     <!-- 로비 화면 -->
     <div id="lobbyContainer">
         <h1>캐치마인드</h1>
-        <p>프로필 & 실시간 방 인원수 확인</p>
+        <p>캐릭터 커스텀 & 8인 대전</p>
         
         <div class="input-group">
-            <label>아바타 선택</label>
-            <div class="avatar-grid">
-                <div class="avatar-option selected" onclick="selectAvatar('🐶', this)">🐶</div>
-                <div class="avatar-option" onclick="selectAvatar('🐱', this)">🐱</div>
-                <div class="avatar-option" onclick="selectAvatar('🦊', this)">🦊</div>
-                <div class="avatar-option" onclick="selectAvatar('🐼', this)">🐼</div>
-            </div>
+            <label>내 캐릭터 (이모지 직접 입력 가능!)</label>
+            <input type="text" id="avatarInput" value="😎" maxlength="2" style="text-align: center; font-size: 20px;">
         </div>
 
         <div class="input-group">
@@ -123,9 +119,13 @@
         <button class="btn-enter" onclick="enterGame()">게임 입장</button>
     </div>
 
-    <!-- 게임 메인 화면 -->
+    <!-- 게임 메인 화면 (좌우 4명씩 총 8인 프로필 배치) -->
     <div class="game-container" id="gameArea">
-        <div class="left-pane">
+        <!-- 좌측 프로필 4칸 -->
+        <div class="side-profiles" id="leftProfiles"></div>
+
+        <!-- 중앙 캔버스 및 툴바 -->
+        <div class="center-pane">
             <div class="top-info-bar">
                 <div class="room-badge-txt" id="roomTitleTxt" style="color:#2980b9;">[1번방]</div>
                 <div class="word-quiz-box" id="wordDisplay">대기 중...</div>
@@ -133,7 +133,7 @@
             </div>
 
             <div class="canvas-wrap">
-                <canvas id="drawingBoard" width="580" height="420"></canvas>
+                <canvas id="drawingBoard" width="540" height="400"></canvas>
             </div>
 
             <div class="palette-bar">
@@ -153,12 +153,10 @@
             </div>
         </div>
 
+        <!-- 우측 프로필 4칸 및 채팅 -->
         <div class="right-pane">
-            <div class="score-board">
-                <h3>🏆 실시간 순위 (8턴 진행)</h3>
-                <div id="playersContainer"></div>
-            </div>
-
+            <div class="side-profiles" id="rightProfiles"></div>
+            
             <div class="action-panel">
                 <button class="btn-game-start" id="startBtn">게임 시작</button>
             </div>
@@ -166,7 +164,7 @@
             <div class="chat-container">
                 <div class="chat-messages" id="chatBox"></div>
                 <div class="chat-input-row">
-                    <input type="text" id="chatInput" placeholder="정답 또는 채팅 입력...">
+                    <input type="text" id="chatInput" placeholder="정답 입력...">
                     <button id="sendBtn">전송</button>
                 </div>
             </div>
@@ -195,7 +193,7 @@
 
         let selectedRoom = "1번방";
         let myName = "";
-        let myAvatar = "🐶";
+        let myAvatar = "😎";
         let myScore = 0;
         let isMyTurn = false;
         let currentWord = "";
@@ -207,8 +205,9 @@
         const chatBox = document.getElementById('chatBox');
         const chatInput = document.getElementById('chatInput');
         const wordDisplay = document.getElementById('wordDisplay');
-        const playersContainer = document.getElementById('playersContainer');
         const timerBadge = document.getElementById('timerBadge');
+        const leftProfiles = document.getElementById('leftProfiles');
+        const rightProfiles = document.getElementById('rightProfiles');
 
         ['1번방', '2번방', '3번방'].forEach(r => {
             db.ref(`rooms/${r}/players`).on('value', snapshot => {
@@ -217,12 +216,6 @@
                 if(btn) btn.textContent = `${r} (${count}명)`;
             });
         });
-
-        function selectAvatar(avatar, el) {
-            myAvatar = avatar;
-            document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
-            el.classList.add('selected');
-        }
 
         function selectRoom(rName, btn) {
             selectedRoom = rName;
@@ -242,11 +235,14 @@
 
         function enterGame() {
             let n = document.getElementById('nicknameInput').value.trim();
+            let customAvatar = document.getElementById('avatarInput').value.trim();
             if(!n) {
                 alert("닉네임을 입력해주세요!");
                 return;
             }
             myName = n;
+            if(customAvatar) myAvatar = customAvatar;
+
             document.getElementById('lobbyContainer').style.display = 'none';
             document.getElementById('gameArea').style.display = 'flex';
             document.getElementById('roomTitleTxt').textContent = `[${selectedRoom}]`;
@@ -356,7 +352,6 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
 
-            // 모든 인원에게 공평하게 턴이 돌아가도록 수정된 함수
             function nextTurn() {
                 db.ref(`rooms/${selectedRoom}/gameSession`).once('value').then(snapshot => {
                     let sess = snapshot.val();
@@ -374,13 +369,9 @@
                         let pNames = Object.keys(pObj);
                         let currentDrawer = sess.drawer;
 
-                        // 직전 출제자를 제외한 나머지 인원들 필터링 (혼자라면 어쩔 수 없이 그 사람이 다시)
                         let availableDrawers = pNames.filter(name => name !== currentDrawer);
-                        if(availableDrawers.length === 0) {
-                            availableDrawers = pNames;
-                        }
+                        if(availableDrawers.length === 0) availableDrawers = pNames;
 
-                        // 남은 인원 중 무작위로 다음 출제자 선정
                         let nDrawer = availableDrawers[Math.floor(Math.random() * availableDrawers.length)];
                         let nWord = wordList[Math.floor(Math.random() * wordList.length)];
 
@@ -393,6 +384,7 @@
                 });
             }
 
+            let currentDrawerGlobal = "";
             db.ref(`rooms/${selectedRoom}/gameSession`).on('value', (snapshot) => {
                 let sess = snapshot.val();
                 if(!sess) return;
@@ -409,6 +401,7 @@
                 }
 
                 currentWord = sess.word;
+                currentDrawerGlobal = sess.drawer;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 if(sess.drawer === myName) {
@@ -437,21 +430,45 @@
                 }, 1000);
             });
 
+            // 좌우 4명씩 총 8인 프로필 카드 렌더링
             db.ref(`rooms/${selectedRoom}/players`).on('value', (snapshot) => {
-                playersContainer.innerHTML = '';
+                leftProfiles.innerHTML = '';
+                rightProfiles.innerHTML = '';
                 let arr = [];
                 snapshot.forEach(child => {
-                    arr.push({ name: child.key, score: child.val().score, avatar: child.val().avatar || '🐶' });
+                    arr.push({ name: child.key, score: child.val().score, avatar: child.val().avatar || '😎' });
                 });
                 arr.sort((a,b) => b.score - a.score);
 
-                arr.forEach((p, idx) => {
-                    let div = document.createElement('div');
-                    div.className = `player-row ${p.name === myName ? 'me' : ''}`;
-                    div.innerHTML = `<span>${idx+1}등. ${p.avatar} ${p.name}</span> <strong>${p.score}점</strong>`;
-                    playersContainer.appendChild(div);
-                });
+                // 빈 자리 포함 최대 8명 맞추기
+                for(let i = 0; i < 4; i++) {
+                    leftProfiles.appendChild(createProfileCard(arr[i], currentDrawerGlobal));
+                    rightProfiles.appendChild(createProfileCard(arr[i+4], currentDrawerGlobal));
+                }
             });
+        }
+
+        function createProfileCard(pData, drawerName) {
+            let card = document.createElement('div');
+            card.className = 'profile-card';
+            if(pData && pData.name === drawerName) {
+                card.classList.add('active-drawer'); // 현재 그림 그리는 사람 강조
+            }
+
+            if(pData) {
+                card.innerHTML = `
+                    <div class="profile-avatar">${pData.avatar}</div>
+                    <div class="profile-name">${pData.name}</div>
+                    <div class="profile-score">${pData.score}점</div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="profile-avatar" style="opacity:0.2;">👤</div>
+                    <div class="profile-name" style="color:#bdc3c7;">비어있음</div>
+                    <div class="profile-score">-</div>
+                `;
+            }
+            return card;
         }
 
         window.addEventListener('beforeunload', () => {
