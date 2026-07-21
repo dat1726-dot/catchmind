@@ -42,7 +42,7 @@
         
         /* 좌우 프로필 패널 (각각 4명씩 세로 배치) */
         .side-profiles { width: 180px; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; }
-        .profile-card { background: white; border: 2px solid #2980b9; border-radius: 6px; padding: 8px; text-align: center; height: 18.5%; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .profile-card { background: white; border: 2px solid #2980b9; border-radius: 6px; padding: 8px; text-align: center; height: 23%; display: flex; flex-direction: column; justify-content: center; position: relative; }
         .profile-card.active-drawer { border-color: #e74c3c; background: #f9ebea; box-shadow: 0 0 8px rgba(231, 76, 60, 0.5); }
         .profile-avatar { font-size: 26px; margin-bottom: 2px; }
         .profile-name { font-size: 12px; font-weight: bold; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -304,9 +304,16 @@
             });
 
             document.getElementById('startBtn').onclick = () => {
+                // 게임 시작 시 모든 플레이어 점수 0점으로 초기화
                 db.ref(`rooms/${selectedRoom}/players`).once('value').then(snapshot => {
                     let pObj = snapshot.val();
-                    if(!pObj) return;
+                    if (!pObj) return;
+                    let updates = {};
+                    Object.keys(pObj).forEach(name => {
+                        updates[`${name}/score`] = 0;
+                    });
+                    db.ref(`rooms/${selectedRoom}/players`).update(updates);
+
                     let pNames = Object.keys(pObj);
                     let firstDrawer = pNames[0];
                     let firstWord = wordList[Math.floor(Math.random() * wordList.length)];
@@ -357,9 +364,16 @@
                     let sess = snapshot.val();
                     if(!sess || sess.status !== 'playing') return;
                     let nRound = sess.round + 1;
+                    
+                    // 8턴 초과 시 게임 종료 상태로 변경하고 대기실로 자동 복귀 예약
                     if(nRound > sess.maxRound) {
                         db.ref(`rooms/${selectedRoom}/gameSession`).update({ status: 'ended' });
-                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '8턴 게임 종료! 순위를 확인하세요.', type: 'sys' });
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '🏆 8턴 게임 종료! 잠시 후 대기실로 돌아갑니다.', type: 'sys' });
+                        
+                        setTimeout(() => {
+                            db.ref(`rooms/${selectedRoom}/gameSession`).set({ status: 'waiting' });
+                            db.ref(`rooms/${selectedRoom}/draw`).remove();
+                        }, 5000);
                         return;
                     }
 
@@ -391,6 +405,7 @@
                 if(sess.status === 'waiting') {
                     wordDisplay.textContent = "대기실 (시작 버튼 클릭)";
                     timerBadge.textContent = "대기";
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                     return;
                 }
                 if(sess.status === 'ended') {
@@ -430,7 +445,7 @@
                 }, 1000);
             });
 
-            // 좌우 4명씩 총 8인 프로필 카드 렌더링
+            // 좌우 각각 4개씩 총 8개의 프로필 슬롯 고정 렌더링
             db.ref(`rooms/${selectedRoom}/players`).on('value', (snapshot) => {
                 leftProfiles.innerHTML = '';
                 rightProfiles.innerHTML = '';
@@ -440,10 +455,13 @@
                 });
                 arr.sort((a,b) => b.score - a.score);
 
-                // 빈 자리 포함 최대 8명 맞추기
+                // 좌측 4명 배치
                 for(let i = 0; i < 4; i++) {
                     leftProfiles.appendChild(createProfileCard(arr[i], currentDrawerGlobal));
-                    rightProfiles.appendChild(createProfileCard(arr[i+4], currentDrawerGlobal));
+                }
+                // 우측 4명 배치
+                for(let i = 4; i < 8; i++) {
+                    rightProfiles.appendChild(createProfileCard(arr[i], currentDrawerGlobal));
                 }
             });
         }
@@ -451,11 +469,11 @@
         function createProfileCard(pData, drawerName) {
             let card = document.createElement('div');
             card.className = 'profile-card';
-            if(pData && pData.name === drawerName) {
-                card.classList.add('active-drawer'); // 현재 그림 그리는 사람 강조
-            }
-
+            
             if(pData) {
+                if(pData.name === drawerName) {
+                    card.classList.add('active-drawer');
+                }
                 card.innerHTML = `
                     <div class="profile-avatar">${pData.avatar}</div>
                     <div class="profile-name">${pData.name}</div>
