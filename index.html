@@ -3,31 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 완벽 대전형</title>
+    <title>캐치마인드 - 궁극의 풀옵션 대전</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
 
         /* 로비 화면 */
-        #lobbyContainer {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            border: 3px solid #4a90e2;
-        }
+        #lobbyContainer { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; border: 3px solid #4a90e2; }
         #lobbyContainer h1 { font-size: 24px; color: #2c3e50; margin-bottom: 5px; }
         #lobbyContainer p { color: #7f8c8d; font-size: 13px; margin-bottom: 15px; }
         
         .input-group { margin-bottom: 12px; text-align: left; }
         .input-group label { display: block; font-size: 12px; font-weight: bold; color: #34495e; margin-bottom: 4px; }
-        .input-group input { width: 100%; padding: 8px 10px; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 14px; outline: none; }
-        .input-group input:focus { border-color: #4a90e2; }
+        .input-group input, .input-group select { width: 100%; padding: 8px 10px; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 14px; outline: none; }
+        .input-group input:focus, .input-group select:focus { border-color: #4a90e2; }
 
-        .emoji-picker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-height: 130px; overflow-y: auto; background: #f8f9fa; padding: 6px; border: 2px solid #bdc3c7; border-radius: 6px; margin-bottom: 8px; }
+        .emoji-picker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-height: 110px; overflow-y: auto; background: #f8f9fa; padding: 6px; border: 2px solid #bdc3c7; border-radius: 6px; margin-bottom: 8px; }
         .emoji-option { font-size: 22px; padding: 4px; cursor: pointer; border: 2px solid transparent; border-radius: 4px; text-align: center; background: white; transition: transform 0.1s; }
         .emoji-option:hover { transform: scale(1.15); background: #eef2f5; }
         .emoji-option.selected { border-color: #e74c3c; background: #fadbd8; }
@@ -38,13 +29,12 @@
         .room-btn.active { background: #4a90e2; color: white; border-color: #357abd; }
 
         .custom-room-box { display: flex; gap: 6px; margin-bottom: 15px; }
-        .custom-room-box input { flex-grow: 1; padding: 8px; border: 2px solid #bdc3c7; border-radius: 6px; }
         
-        .btn-enter { width: 100%; padding: 12px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #27ae60; }
+        .btn-enter { width: 100%; padding: 12px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #27ae60; margin-top: 5px; }
         .btn-enter:active { transform: translateY(2px); box-shadow: 0 1px #27ae60; }
 
         /* 게임 메인 화면 */
-        .game-container { display: none; width: 1100px; max-width: 100%; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); gap: 8px; padding: 8px; flex-direction: row; }
+        .game-container { display: none; width: 1150px; max-width: 100%; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); gap: 8px; padding: 8px; flex-direction: row; }
         
         .side-profiles { width: 160px; display: flex; flex-direction: column; gap: 6px; justify-content: space-between; }
         .profile-card { background: white; border: 2px solid #2980b9; border-radius: 6px; padding: 6px; text-align: center; height: 23%; display: flex; flex-direction: column; justify-content: center; position: relative; }
@@ -56,20 +46,21 @@
         .ready-badge.on { background: #2ecc71; color: white; }
         .ready-badge.off { background: #95a5a6; color: white; }
 
-        .center-pane { display: flex; flex-direction: column; width: 520px; gap: 6px; flex-grow: 1; }
+        .center-pane { display: flex; flex-direction: column; width: 540px; gap: 6px; flex-grow: 1; }
         .top-info-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px 10px; border: 2px solid #2980b9; border-radius: 6px; font-weight: bold; }
-        .word-quiz-box { font-size: 16px; color: #c0392b; letter-spacing: 1px; }
-        .timer-box { font-size: 14px; color: #e67e22; background: #fef5e7; padding: 2px 8px; border-radius: 12px; border: 1px solid #f39c12; }
+        .word-quiz-box { font-size: 16px; color: #c0392b; letter-spacing: 1px; flex-grow: 1; text-align: center; }
+        .timer-box { font-size: 14px; color: #e67e22; background: #fef5e7; padding: 2px 8px; border-radius: 12px; border: 1px solid #f39c12; min-width: 55px; text-align: center; }
 
         .canvas-wrap { position: relative; background: white; border: 3px solid #2980b9; border-radius: 6px; overflow: hidden; width: 100%; aspect-ratio: 4 / 3; }
         canvas { display: block; width: 100%; height: 100%; cursor: crosshair; background: #fff; touch-action: none; }
 
-        .palette-bar { display: flex; align-items: center; background: #fff; padding: 6px 8px; border: 2px solid #2980b9; border-radius: 6px; justify-content: space-between; }
+        .palette-bar { display: flex; align-items: center; background: #fff; padding: 6px 8px; border: 2px solid #2980b9; border-radius: 6px; flex-wrap: wrap; gap: 8px; }
         .colors { display: flex; gap: 4px; }
         .c-btn { width: 20px; height: 20px; border-radius: 3px; cursor: pointer; border: 1px solid #7f8c8d; }
-        .tools-group { display: flex; gap: 5px; }
-        .t-btn { padding: 4px 8px; font-size: 11px; font-weight: bold; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 4px; cursor: pointer; }
+        .tools-group { display: flex; gap: 4px; flex-wrap: wrap; }
+        .t-btn { padding: 4px 6px; font-size: 11px; font-weight: bold; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 4px; cursor: pointer; }
         .t-btn:hover { background: #bdc3c7; }
+        .t-btn.active-tool { background: #34495e; color: white; border-color: #2c3e50; }
 
         .right-pane { display: flex; flex-direction: column; width: 220px; gap: 6px; }
         .action-panel { display: flex; gap: 5px; }
@@ -82,10 +73,10 @@
         .chat-input-row { display: flex; border-top: 2px solid #2980b9; }
         .chat-input-row input { flex-grow: 1; padding: 6px; border: none; outline: none; font-size: 12px; }
         .chat-input-row button { padding: 0 10px; background: #3498db; color: white; border: none; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .chat-input-row button:hover { background: #2980b9; }
 
         .m-sys { color: #c0392b; font-weight: bold; background: #fadbd8; padding: 2px 4px; border-radius: 3px; }
         .m-correct { color: #27ae60; font-weight: bold; background: #d4efdf; padding: 3px 5px; border-radius: 3px; border-left: 3px solid #27ae60; }
+        .m-hint { color: #8e44ad; font-weight: bold; background: #f5eef8; padding: 3px 5px; border-radius: 3px; border-left: 3px solid #8e44ad; }
         .m-chat { color: #2c3e50; background: #f2f4f4; padding: 2px 4px; border-radius: 3px; }
         .m-chat span { color: #2980b9; font-weight: bold; }
 
@@ -96,7 +87,7 @@
             .profile-card { width: 23%; height: 65px; }
             .center-pane { width: 100%; }
             .right-pane { width: 100%; }
-            .chat-container { height: 140px; }
+            .chat-container { height: 160px; }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -104,15 +95,13 @@
 </head>
 <body>
 
-    <!-- 로비 화면 -->
     <div id="lobbyContainer">
         <h1>캐치마인드</h1>
-        <p>전원 준비 시스템 & 이탈 자동 방어</p>
+        <p>풀옵션 (도구, 힌트, 사운드, 테마)</p>
         
         <div class="input-group">
-            <label>내 아바타 이모지 (선택 또는 직접 입력)</label>
             <div class="emoji-picker-grid" id="emojiGrid"></div>
-            <input type="text" id="avatarInput" value="😎" maxlength="2" style="text-align: center; font-size: 18px; margin-top: 4px;" placeholder="직접 입력 가능">
+            <input type="text" id="avatarInput" value="😎" maxlength="2" style="text-align: center; font-size: 16px; margin-top: 4px;" placeholder="이모지 직접입력">
         </div>
 
         <div class="input-group">
@@ -121,7 +110,17 @@
         </div>
 
         <div class="input-group">
-            <label>방 선택 (실시간 인원)</label>
+            <label>게임 테마 선택 (방장이 결정)</label>
+            <select id="themeSelect">
+                <option value="일반">일반 (사물/직업 등)</option>
+                <option value="전래동화">전래동화 & 고전문학</option>
+                <option value="일본어">일본어 기본 단어</option>
+                <option value="게임애니">게임 & 애니 캐릭터</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>방 선택</label>
             <div class="room-grid">
                 <button class="room-btn active" id="btn_1번방" onclick="selectRoom('1번방', this)">1번방(0)</button>
                 <button class="room-btn" id="btn_2번방" onclick="selectRoom('2번방', this)">2번방(0)</button>
@@ -129,15 +128,9 @@
             </div>
         </div>
 
-        <div class="custom-room-box">
-            <input type="text" id="customRoomInput" placeholder="기타 방 번호">
-            <button class="t-btn" onclick="joinCustomRoom()" style="background:#bdc3c7;">입장</button>
-        </div>
-
         <button class="btn-enter" onclick="enterGame()">게임 입장</button>
     </div>
 
-    <!-- 게임 메인 화면 -->
     <div class="game-container" id="gameArea">
         <div class="side-profiles" id="leftProfiles"></div>
 
@@ -161,10 +154,13 @@
                     <div class="c-btn" style="background:#2ecc71;" onclick="setColor('#2ecc71')"></div>
                     <div class="c-btn" style="background:#f1c40f;" onclick="setColor('#f1c40f')"></div>
                     <div class="c-btn" style="background:#9b59b6;" onclick="setColor('#9b59b6')"></div>
-                    <div class="c-btn" style="background:#e67e22;" onclick="setColor('#e67e22')"></div>
                 </div>
                 <div class="tools-group">
-                    <button class="t-btn" id="clearBtn">전체삭제</button>
+                    <button class="t-btn active-tool" id="btnThin" onclick="setLineWidth(3, this)">🖌️얇게</button>
+                    <button class="t-btn" id="btnNormal" onclick="setLineWidth(8, this)">🖌️보통</button>
+                    <button class="t-btn" id="btnThick" onclick="setLineWidth(15, this)">🖌️두껍게</button>
+                    <button class="t-btn" id="btnFill" onclick="fillCanvas()" style="color:#e67e22;">🪣배경채우기</button>
+                    <button class="t-btn" id="clearBtn">🗑️전체삭제</button>
                 </div>
             </div>
         </div>
@@ -187,13 +183,14 @@
     </div>
 
     <script>
-        const wordList = [
-            "사과", "바나나", "호랑이", "컴퓨터", "스마트폰", "피자", "비행기", "우주선", "외계인", "경찰차",
-            "소방관", "간호사", "의사", "학교", "선생님", "연필", "지우개", "가방", "안경", "시계",
-            "자전거", "오토바이", "기차", "배", "구름", "태양", "달", "별", "무지개", "우산"
-        ];
+        // 주제별 단어장 데이터
+        const themeWords = {
+            "일반": ["사과", "바나나", "호랑이", "컴퓨터", "스마트폰", "피자", "비행기", "경찰차", "소방관", "선생님", "자전거", "무지개", "우산"],
+            "전래동화": ["사미인곡", "백설공주", "흥부와놀부", "신데렐라", "우렁각시", "심청이", "토끼와거북이", "선녀와나무꾼", "콩쥐팥쥐", "혹부리영감"],
+            "일본어": ["히라가나", "가타카나", "오하요", "아리가또", "사요나라", "스미마센", "이타다키마스", "카와이", "스고이", "오이시이"],
+            "게임애니": ["배틀그라운드", "조로", "원피스", "루피", "피카츄", "도라에몽", "마리오", "스타크래프트", "리그오브레전드", "크레이지아케이드"]
+        };
 
-        // 20가지 순수 이모지 리스트 (라이언 제외, 코알라 추가)
         const cleanEmojis = ["😎", "🐶", "🐱", "🦊", "🐼", "🐨", "🦄", "🐵", "🐰", "👻", "💩", "🤖", "👽", "💀", "🎃", "🍎", "🍕", "⚽", "🚗", "🔥"];
 
         const emojiGrid = document.getElementById('emojiGrid');
@@ -210,6 +207,51 @@
             };
             emojiGrid.appendChild(div);
         });
+
+        // 초성 추출 함수
+        function getChosung(str) {
+            const cho = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+            let result = '';
+            for(let i=0; i<str.length; i++) {
+                let code = str.charCodeAt(i) - 44032;
+                if(code > -1 && code < 11172) result += cho[Math.floor(code / 588)];
+                else result += str.charAt(i);
+            }
+            return result;
+        }
+
+        // 오디오 API (효과음)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        
+        function initAudio() {
+            if(!audioCtx) audioCtx = new AudioContext();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playBeep(freq, time, duration, vol=0.1) {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime + time);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + time + duration);
+            osc.start(audioCtx.currentTime + time);
+            osc.stop(audioCtx.currentTime + time + duration);
+        }
+
+        function playStartSound() {
+            initAudio();
+            playBeep(440, 0, 0.1); playBeep(880, 0.1, 0.2); // 띠링!
+        }
+
+        function playCorrectSound() {
+            initAudio();
+            playBeep(523.25, 0, 0.2); // C5
+            playBeep(659.25, 0.1, 0.2); // E5
+            playBeep(783.99, 0.2, 0.4); // G5 딩동댕!
+        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyBc51nfquy9i1FfCV0OZPdF0VBlX_ymVb0",
@@ -233,6 +275,7 @@
         let currentWord = "";
         let timerInterval = null;
         let drawColor = "#000000";
+        let currentLineWidth = 3;
 
         const canvas = document.getElementById('drawingBoard');
         const ctx = canvas.getContext('2d');
@@ -240,18 +283,15 @@
         const chatInput = document.getElementById('chatInput');
         const wordDisplay = document.getElementById('wordDisplay');
         const timerBadge = document.getElementById('timerBadge');
-        const leftProfiles = document.getElementById('leftProfiles');
-        const rightProfiles = document.getElementById('rightProfiles');
         const readyBtn = document.getElementById('readyBtn');
+        const themeSelect = document.getElementById('themeSelect');
 
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
-            ctx.lineWidth = 4;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
-            ctx.strokeStyle = drawColor;
         }
         window.addEventListener('resize', resizeCanvas);
 
@@ -264,6 +304,7 @@
                 if(count === 0) {
                     db.ref(`rooms/${r}/gameSession`).set({ status: 'waiting' });
                     db.ref(`rooms/${r}/draw`).remove();
+                    db.ref(`rooms/${r}/settings`).remove();
                 }
             });
         });
@@ -274,25 +315,12 @@
             btn.classList.add('active');
         }
 
-        function joinCustomRoom() {
-            let val = document.getElementById('customRoomInput').value.trim();
-            if(val) {
-                selectedRoom = val;
-                enterGame();
-            } else {
-                alert("방 번호를 입력하세요!");
-            }
-        }
-
         function enterGame() {
             let n = document.getElementById('nicknameInput').value.trim();
-            let customAvatar = avatarInput.value.trim();
-            if(!n) {
-                alert("닉네임을 입력해주세요!");
-                return;
-            }
+            if(!n) { alert("닉네임을 입력해주세요!"); return; }
             myName = n;
-            if(customAvatar) myAvatar = customAvatar;
+            myAvatar = avatarInput.value.trim() || "😎";
+            initAudio(); // 최초 클릭 시 오디오 권한 획득
 
             document.getElementById('lobbyContainer').style.display = 'none';
             document.getElementById('gameArea').style.display = 'flex';
@@ -305,6 +333,7 @@
             db.ref(`rooms/${selectedRoom}/gameSession`).once('value', snapshot => {
                 if(!snapshot.exists()) {
                     db.ref(`rooms/${selectedRoom}/gameSession`).set({ status: 'waiting' });
+                    db.ref(`rooms/${selectedRoom}/settings`).set({ theme: themeSelect.value });
                 }
             });
 
@@ -312,6 +341,7 @@
         }
 
         function toggleReady() {
+            initAudio();
             isReady = !isReady;
             db.ref(`rooms/${selectedRoom}/players/${myName}`).update({ ready: isReady });
             
@@ -326,7 +356,19 @@
 
         function setColor(c) {
             drawColor = c;
-            ctx.strokeStyle = c;
+        }
+
+        function setLineWidth(w, btn) {
+            currentLineWidth = w;
+            document.querySelectorAll('#btnThin, #btnNormal, #btnThick').forEach(el => el.classList.remove('active-tool'));
+            btn.classList.add('active-tool');
+        }
+
+        function fillCanvas() {
+            if(!isMyTurn) return;
+            ctx.fillStyle = drawColor;
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            db.ref(`rooms/${selectedRoom}/draw`).push({ type: 'fill', color: drawColor });
         }
 
         function initClassicEngine() {
@@ -334,59 +376,47 @@
 
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
-                let clientX = e.clientX;
-                let clientY = e.clientY;
+                let clientX = e.clientX, clientY = e.clientY;
                 if(e.touches && e.touches.length > 0) {
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
+                    clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
                 }
-                return {
-                    x: clientX - rect.left,
-                    y: clientY - rect.top
-                };
+                return { x: clientX - rect.left, y: clientY - rect.top };
             }
 
-            canvas.addEventListener('mousedown', (e) => {
+            function startDraw(e) {
                 if(!isMyTurn) return;
                 drawing = true;
                 let pos = getPos(e);
+                ctx.lineWidth = currentLineWidth;
+                ctx.strokeStyle = drawColor;
                 ctx.beginPath();
                 ctx.moveTo(pos.x, pos.y);
-            });
-            canvas.addEventListener('mousemove', (e) => {
-                if(!drawing || !isMyTurn) return;
-                let pos = getPos(e);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-                db.ref(`rooms/${selectedRoom}/draw`).push({ x: pos.x / canvas.width, y: pos.y / canvas.height, color: drawColor, type: 'line' });
-            });
-            canvas.addEventListener('mouseup', () => {
-                if(!isMyTurn) return;
-                drawing = false;
-                db.ref(`rooms/${selectedRoom}/draw`).push({ type: 'end' });
-            });
+            }
 
-            canvas.addEventListener('touchstart', (e) => {
-                if(!isMyTurn) return;
-                drawing = true;
-                let pos = getPos(e);
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-                e.preventDefault();
-            });
-            canvas.addEventListener('touchmove', (e) => {
+            function moveDraw(e) {
                 if(!drawing || !isMyTurn) return;
                 let pos = getPos(e);
                 ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
-                db.ref(`rooms/${selectedRoom}/draw`).push({ x: pos.x / canvas.width, y: pos.y / canvas.height, color: drawColor, type: 'line' });
-                e.preventDefault();
-            });
-            canvas.addEventListener('touchend', () => {
+                db.ref(`rooms/${selectedRoom}/draw`).push({ 
+                    x: pos.x / canvas.width, y: pos.y / canvas.height, 
+                    color: drawColor, width: currentLineWidth, type: 'line' 
+                });
+                if(e.type === 'touchmove') e.preventDefault();
+            }
+
+            function endDraw() {
                 if(!isMyTurn) return;
                 drawing = false;
                 db.ref(`rooms/${selectedRoom}/draw`).push({ type: 'end' });
-            });
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', moveDraw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('touchstart', startDraw);
+            canvas.addEventListener('touchmove', moveDraw, {passive: false});
+            canvas.addEventListener('touchend', endDraw);
 
             document.getElementById('clearBtn').onclick = () => {
                 if(!isMyTurn) return;
@@ -398,11 +428,13 @@
                 let data = snapshot.val();
                 if(!data) return;
                 if(data.type === 'line') {
-                    ctx.strokeStyle = data.color || '#000';
-                    let realX = data.x * canvas.width;
-                    let realY = data.y * canvas.height;
-                    ctx.lineTo(realX, realY);
+                    ctx.strokeStyle = data.color;
+                    ctx.lineWidth = data.width || 3;
+                    ctx.lineTo(data.x * canvas.width, data.y * canvas.height);
                     ctx.stroke();
+                } else if(data.type === 'fill') {
+                    ctx.fillStyle = data.color;
+                    ctx.fillRect(0,0,canvas.width,canvas.height);
                 } else if(data.type === 'end') {
                     ctx.beginPath();
                 } else if(data.type === 'clear') {
@@ -415,34 +447,26 @@
                 let pObj = snapshot.val();
                 if(!pObj) return;
                 let pNames = Object.keys(pObj);
-                if(pNames.length === 0) return;
-
-                let allReady = true;
-                pNames.forEach(name => {
-                    if(!pObj[name].ready) allReady = false;
-                });
+                
+                let allReady = pNames.length > 0 && pNames.every(name => pObj[name].ready);
 
                 db.ref(`rooms/${selectedRoom}/gameSession/status`).once('value', sSnap => {
-                    let status = sSnap.val();
-                    if(status === 'waiting' && allReady && pNames.length > 0) {
+                    if(sSnap.val() === 'waiting' && allReady) {
                         let updates = {};
-                        pNames.forEach(name => {
-                            updates[`${name}/score`] = 0;
-                            updates[`${name}/ready`] = false;
-                        });
+                        pNames.forEach(name => { updates[`${name}/score`] = 0; updates[`${name}/ready`] = false; });
                         db.ref(`rooms/${selectedRoom}/players`).update(updates);
                         isReady = false;
-                        readyBtn.textContent = "준비하기 (READY)";
-                        readyBtn.classList.remove('ready');
+                        readyBtn.textContent = "준비하기 (READY)"; readyBtn.classList.remove('ready');
 
-                        let firstDrawer = pNames[0];
-                        let firstWord = wordList[Math.floor(Math.random() * wordList.length)];
-
-                        db.ref(`rooms/${selectedRoom}/gameSession`).set({
-                            round: 1, maxRound: 8, status: 'playing', drawer: firstDrawer, word: firstWord
+                        db.ref(`rooms/${selectedRoom}/settings/theme`).once('value', tSnap => {
+                            let theme = tSnap.val() || "일반";
+                            let wList = themeWords[theme] || themeWords["일반"];
+                            let firstWord = wList[Math.floor(Math.random() * wList.length)];
+                            db.ref(`rooms/${selectedRoom}/gameSession`).set({ round: 1, maxRound: 8, status: 'playing', drawer: pNames[0], word: firstWord, theme: theme });
+                            db.ref(`rooms/${selectedRoom}/draw`).remove();
+                            db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `🚀 게임 시작! (테마: ${theme})`, type: 'sys' });
+                            playStartSound();
                         });
-                        db.ref(`rooms/${selectedRoom}/draw`).remove();
-                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '🚀 모두 준비 완료! 게임이 시작됩니다!', type: 'sys' });
                     }
                 });
             });
@@ -455,7 +479,8 @@
                 if(!text) return;
 
                 if(text === currentWord && !isMyTurn) {
-                    db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `정답입니다! [${myName}] 득점! (+10)`, type: 'correct' });
+                    playCorrectSound();
+                    db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `🎉 정답! [${myName}] 득점! (+10)`, type: 'correct' });
                     myScore += 10;
                     db.ref(`rooms/${selectedRoom}/players/${myName}`).update({ score: myScore });
                     nextTurn();
@@ -469,13 +494,10 @@
                 let d = snapshot.val();
                 if(!d) return;
                 let div = document.createElement('div');
-                if(d.type === 'sys') {
-                    div.className = 'm-sys'; div.textContent = `[공지] ${d.msg}`;
-                } else if(d.type === 'correct') {
-                    div.className = 'm-correct'; div.textContent = d.msg;
-                } else {
-                    div.className = 'm-chat'; div.innerHTML = `<span>${d.sender}:</span> ${d.msg}`;
-                }
+                if(d.type === 'sys') { div.className = 'm-sys'; div.textContent = `[공지] ${d.msg}`; }
+                else if(d.type === 'hint') { div.className = 'm-hint'; div.textContent = d.msg; }
+                else if(d.type === 'correct') { div.className = 'm-correct'; div.textContent = d.msg; }
+                else { div.className = 'm-chat'; div.innerHTML = `<span>${d.sender}:</span> ${d.msg}`; }
                 chatBox.appendChild(div);
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
@@ -488,8 +510,7 @@
                     
                     if(nRound > sess.maxRound) {
                         db.ref(`rooms/${selectedRoom}/gameSession`).update({ status: 'ended' });
-                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '🏆 8턴 게임 종료! 잠시 후 대기실로 돌아갑니다.', type: 'sys' });
-                        
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '🏆 8턴 종료! 잠시 후 대기실로 돌아갑니다.', type: 'sys' });
                         setTimeout(() => {
                             db.ref(`rooms/${selectedRoom}/gameSession`).set({ status: 'waiting' });
                             db.ref(`rooms/${selectedRoom}/draw`).remove();
@@ -499,21 +520,18 @@
 
                     db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
                         let pObj = pSnap.val();
-                        if(!pObj) return;
-                        let pNames = Object.keys(pObj);
-                        let currentDrawer = sess.drawer;
+                        let pNames = Object.keys(pObj || {});
+                        let avail = pNames.filter(n => n !== sess.drawer);
+                        if(avail.length === 0) avail = pNames;
 
-                        let availableDrawers = pNames.filter(name => name !== currentDrawer);
-                        if(availableDrawers.length === 0) availableDrawers = pNames;
+                        let nDrawer = avail[Math.floor(Math.random() * avail.length)];
+                        let wList = themeWords[sess.theme] || themeWords["일반"];
+                        let nWord = wList[Math.floor(Math.random() * wList.length)];
 
-                        let nDrawer = availableDrawers[Math.floor(Math.random() * availableDrawers.length)];
-                        let nWord = wordList[Math.floor(Math.random() * wordList.length)];
-
-                        db.ref(`rooms/${selectedRoom}/gameSession`).set({
-                            round: nRound, maxRound: 8, status: 'playing', drawer: nDrawer, word: nWord
-                        });
+                        db.ref(`rooms/${selectedRoom}/gameSession`).set({ round: nRound, maxRound: 8, status: 'playing', drawer: nDrawer, word: nWord, theme: sess.theme });
                         db.ref(`rooms/${selectedRoom}/draw`).remove();
                         db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `[제 ${nRound}턴] 출제자: ${nDrawer}`, type: 'sys' });
+                        playStartSound();
                     });
                 });
             }
@@ -546,21 +564,17 @@
                 db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
                     let pObj = pSnap.val();
                     if(pObj && !pObj[currentDrawerGlobal]) {
-                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `⚠️ 출제자(${currentDrawerGlobal})님이 나갔습니다! 즉시 다음 턴으로 넘어갑니다.`, type: 'sys' });
-                        if(myName === Object.keys(pObj)[0]) {
-                            nextTurn();
-                        }
-                        return;
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `⚠️ 출제자 나감! 다음 턴 이동.`, type: 'sys' });
+                        if(myName === Object.keys(pObj)[0]) nextTurn();
                     }
                 });
 
                 if(sess.drawer === myName) {
                     isMyTurn = true;
-                    wordDisplay.textContent = `제시어: [ ${currentWord} ] (그리는 중)`;
+                    wordDisplay.textContent = `제시어: [ ${currentWord} ]`;
                 } else {
                     isMyTurn = false;
-                    let bl = "⭐".repeat(currentWord.length);
-                    wordDisplay.textContent = `제시어: ${bl} (출제자: ${sess.drawer})`;
+                    wordDisplay.textContent = `제시어: ${"⭐".repeat(currentWord.length)} (출제: ${sess.drawer})`;
                 }
 
                 if(timerInterval) clearInterval(timerInterval);
@@ -570,68 +584,50 @@
                 timerInterval = setInterval(() => {
                     left--;
                     timerBadge.textContent = `${left}초`;
+                    
+                    // 15초 남았을 때 자동 초성 힌트 발송 (출제자 클라이언트에서만 1번 발송)
+                    if(left === 15 && isMyTurn) {
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `💡 힌트: ${getChosung(currentWord)}`, type: 'hint' });
+                    }
+
                     if(left <= 0) {
                         clearInterval(timerInterval);
                         db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
-                            let fPlayer = Object.keys(pSnap.val())[0];
-                            if(myName === fPlayer) nextTurn();
+                            if(myName === Object.keys(pSnap.val())[0]) nextTurn();
                         });
                     }
                 }, 1000);
             });
 
             db.ref(`rooms/${selectedRoom}/players`).on('value', (snapshot) => {
-                leftProfiles.innerHTML = '';
-                rightProfiles.innerHTML = '';
+                document.getElementById('leftProfiles').innerHTML = '';
+                document.getElementById('rightProfiles').innerHTML = '';
                 let arr = [];
                 snapshot.forEach(child => {
-                    arr.push({ 
-                        name: child.key, 
-                        score: child.val().score, 
-                        avatar: child.val().avatar || '😎',
-                        ready: child.val().ready || false
-                    });
+                    arr.push({ name: child.key, score: child.val().score, avatar: child.val().avatar, ready: child.val().ready });
                 });
                 arr.sort((a,b) => b.score - a.score);
 
-                for(let i = 0; i < 4; i++) {
-                    leftProfiles.appendChild(createProfileCard(arr[i], currentDrawerGlobal));
-                }
-                for(let i = 4; i < 8; i++) {
-                    rightProfiles.appendChild(createProfileCard(arr[i], currentDrawerGlobal));
-                }
+                for(let i = 0; i < 4; i++) document.getElementById('leftProfiles').appendChild(createProfileCard(arr[i], currentDrawerGlobal));
+                for(let i = 4; i < 8; i++) document.getElementById('rightProfiles').appendChild(createProfileCard(arr[i], currentDrawerGlobal));
             });
         }
 
         function createProfileCard(pData, drawerName) {
             let card = document.createElement('div');
             card.className = 'profile-card';
-            
             if(pData) {
-                if(pData.name === drawerName) {
-                    card.classList.add('active-drawer');
-                }
+                if(pData.name === drawerName) card.classList.add('active-drawer');
                 let readyTag = pData.ready ? `<div class="ready-badge on">READY</div>` : `<div class="ready-badge off">WAIT</div>`;
-                card.innerHTML = `
-                    ${readyTag}
-                    <div class="profile-avatar">${pData.avatar}</div>
-                    <div class="profile-name">${pData.name}</div>
-                    <div class="profile-score">${pData.score}점</div>
-                `;
+                card.innerHTML = `${readyTag}<div class="profile-avatar">${pData.avatar}</div><div class="profile-name">${pData.name}</div><div class="profile-score">${pData.score}점</div>`;
             } else {
-                card.innerHTML = `
-                    <div class="profile-avatar" style="opacity:0.2;">👤</div>
-                    <div class="profile-name" style="color:#bdc3c7;">비어있음</div>
-                    <div class="profile-score">-</div>
-                `;
+                card.innerHTML = `<div class="profile-avatar" style="opacity:0.2;">👤</div><div class="profile-name" style="color:#bdc3c7;">비어있음</div><div class="profile-score">-</div>`;
             }
             return card;
         }
 
         window.addEventListener('beforeunload', () => {
-            if(myName && selectedRoom) {
-                db.ref(`rooms/${selectedRoom}/players/${myName}`).remove();
-            }
+            if(myName && selectedRoom) db.ref(`rooms/${selectedRoom}/players/${myName}`).remove();
         });
     </script>
 </body>
