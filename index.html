@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 전원 준비 & 이탈 방어</title>
+    <title>캐치마인드 - 완벽 대전형</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
@@ -193,7 +193,8 @@
             "자전거", "오토바이", "기차", "배", "구름", "태양", "달", "별", "무지개", "우산"
         ];
 
-        const cleanEmojis = ["😎", "🐶", "🐱", "🦊", "🐼", "라이언", "🦄", "🐵", "🐰", "👻", "💩", "🤖", "👽", "💀", "🎃", "🍎", "🍕", "⚽", "🚗", "🔥"].map(e => e.length > 2 ? "🐵" : e);
+        // 20가지 순수 이모지 리스트 (라이언 제외, 코알라 추가)
+        const cleanEmojis = ["😎", "🐶", "🐱", "🦊", "🐼", "🐨", "🦄", "🐵", "🐰", "👻", "💩", "🤖", "👽", "💀", "🎃", "🍎", "🍕", "⚽", "🚗", "🔥"];
 
         const emojiGrid = document.getElementById('emojiGrid');
         const avatarInput = document.getElementById('avatarInput');
@@ -410,7 +411,6 @@
                 }
             });
 
-            // 전원 준비 감지하여 자동 시작 로직
             db.ref(`rooms/${selectedRoom}/players`).on('value', (snapshot) => {
                 let pObj = snapshot.val();
                 if(!pObj) return;
@@ -422,14 +422,13 @@
                     if(!pObj[name].ready) allReady = false;
                 });
 
-                // 게임 대기 상태일 때만 전원 준비 체크 후 자동 시작
                 db.ref(`rooms/${selectedRoom}/gameSession/status`).once('value', sSnap => {
                     let status = sSnap.val();
                     if(status === 'waiting' && allReady && pNames.length > 0) {
                         let updates = {};
                         pNames.forEach(name => {
                             updates[`${name}/score`] = 0;
-                            updates[`${name}/ready`] = false; // 준비 해제
+                            updates[`${name}/ready`] = false;
                         });
                         db.ref(`rooms/${selectedRoom}/players`).update(updates);
                         isReady = false;
@@ -544,7 +543,6 @@
                 currentDrawerGlobal = sess.drawer;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // 핵심 방어: 현재 출제자가 방을 나갔는지 체크 후 이탈 시 즉시 다음 턴으로 넘김
                 db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
                     let pObj = pSnap.val();
                     if(pObj && !pObj[currentDrawerGlobal]) {
