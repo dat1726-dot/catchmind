@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 캐릭터 커스텀 & 8인 배치</title>
+    <title>캐치마인드 - 캐릭터 커스텀 & 8인 대전</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -119,17 +119,15 @@
         <button class="btn-enter" onclick="enterGame()">게임 입장</button>
     </div>
 
-    <!-- 게임 메인 화면 (좌우 4명씩 총 8인 프로필 배치) -->
+    <!-- 게임 메인 화면 -->
     <div class="game-container" id="gameArea">
-        <!-- 좌측 프로필 4칸 -->
         <div class="side-profiles" id="leftProfiles"></div>
 
-        <!-- 중앙 캔버스 및 툴바 -->
         <div class="center-pane">
             <div class="top-info-bar">
                 <div class="room-badge-txt" id="roomTitleTxt" style="color:#2980b9;">[1번방]</div>
                 <div class="word-quiz-box" id="wordDisplay">대기 중...</div>
-                <div class="timer-box" id="timerBadge">30초</div>
+                <div class="timer-box" id="timerBadge">대기</div>
             </div>
 
             <div class="canvas-wrap">
@@ -153,7 +151,6 @@
             </div>
         </div>
 
-        <!-- 우측 프로필 4칸 및 채팅 -->
         <div class="right-pane">
             <div class="side-profiles" id="rightProfiles"></div>
             
@@ -248,6 +245,14 @@
             document.getElementById('roomTitleTxt').textContent = `[${selectedRoom}]`;
 
             db.ref(`rooms/${selectedRoom}/players/${myName}`).set({ score: 0, avatar: myAvatar });
+            
+            // 최초 접속 시 세션이 없으면 대기실 상태로 설정
+            db.ref(`rooms/${selectedRoom}/gameSession`).once('value', snapshot => {
+                if(!snapshot.exists()) {
+                    db.ref(`rooms/${selectedRoom}/gameSession`).set({ status: 'waiting' });
+                }
+            });
+
             initClassicEngine();
         }
 
@@ -304,7 +309,6 @@
             });
 
             document.getElementById('startBtn').onclick = () => {
-                // 게임 시작 시 모든 플레이어 점수 0점으로 초기화
                 db.ref(`rooms/${selectedRoom}/players`).once('value').then(snapshot => {
                     let pObj = snapshot.val();
                     if (!pObj) return;
@@ -365,7 +369,6 @@
                     if(!sess || sess.status !== 'playing') return;
                     let nRound = sess.round + 1;
                     
-                    // 8턴 초과 시 게임 종료 상태로 변경하고 대기실로 자동 복귀 예약
                     if(nRound > sess.maxRound) {
                         db.ref(`rooms/${selectedRoom}/gameSession`).update({ status: 'ended' });
                         db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '🏆 8턴 게임 종료! 잠시 후 대기실로 돌아갑니다.', type: 'sys' });
@@ -402,10 +405,12 @@
             db.ref(`rooms/${selectedRoom}/gameSession`).on('value', (snapshot) => {
                 let sess = snapshot.val();
                 if(!sess) return;
+                
                 if(sess.status === 'waiting') {
                     wordDisplay.textContent = "대기실 (시작 버튼 클릭)";
                     timerBadge.textContent = "대기";
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    isMyTurn = false;
                     return;
                 }
                 if(sess.status === 'ended') {
@@ -445,7 +450,6 @@
                 }, 1000);
             });
 
-            // 좌우 각각 4개씩 총 8개의 프로필 슬롯 고정 렌더링
             db.ref(`rooms/${selectedRoom}/players`).on('value', (snapshot) => {
                 leftProfiles.innerHTML = '';
                 rightProfiles.innerHTML = '';
@@ -455,11 +459,9 @@
                 });
                 arr.sort((a,b) => b.score - a.score);
 
-                // 좌측 4명 배치
                 for(let i = 0; i < 4; i++) {
                     leftProfiles.appendChild(createProfileCard(arr[i], currentDrawerGlobal));
                 }
-                // 우측 4명 배치
                 for(let i = 4; i < 8; i++) {
                     rightProfiles.appendChild(createProfileCard(arr[i], currentDrawerGlobal));
                 }
