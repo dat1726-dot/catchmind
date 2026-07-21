@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 캐릭터 커스텀 & 8인 대전</title>
+    <title>캐치마인드 - 완벽 대전형</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -211,6 +211,12 @@
                 let count = snapshot.numChildren();
                 let btn = document.getElementById(`btn_${r}`);
                 if(btn) btn.textContent = `${r} (${count}명)`;
+
+                // 방에 아무도 없으면 해당 방의 게임 세션 및 드로잉 데이터 자동 초기화
+                if(count === 0) {
+                    db.ref(`rooms/${r}/gameSession`).set({ status: 'waiting' });
+                    db.ref(`rooms/${r}/draw`).remove();
+                }
             });
         });
 
@@ -246,7 +252,6 @@
 
             db.ref(`rooms/${selectedRoom}/players/${myName}`).set({ score: 0, avatar: myAvatar });
             
-            // 최초 접속 시 세션이 없으면 대기실 상태로 설정
             db.ref(`rooms/${selectedRoom}/gameSession`).once('value', snapshot => {
                 if(!snapshot.exists()) {
                     db.ref(`rooms/${selectedRoom}/gameSession`).set({ status: 'waiting' });
@@ -407,16 +412,18 @@
                 if(!sess) return;
                 
                 if(sess.status === 'waiting') {
-                    wordDisplay.textContent = "대기실 (시작 버튼 클릭)";
+                    wordDisplay.textContent = "대기 중...";
                     timerBadge.textContent = "대기";
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     isMyTurn = false;
+                    if(timerInterval) clearInterval(timerInterval);
                     return;
                 }
                 if(sess.status === 'ended') {
                     wordDisplay.textContent = "게임 종료!";
                     timerBadge.textContent = "종료";
                     isMyTurn = false;
+                    if(timerInterval) clearInterval(timerInterval);
                     return;
                 }
 
