@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ä³Ä¡¸¶ÀÎµå - Å¬·¡½Ä ½ºÅ¸ÀÏ</title>
+    <title>ìºì¹˜ë§ˆì¸ë“œ - í´ë˜ì‹ ìŠ¤íƒ€ì¼</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
-        /* ·Îºñ È­¸é */
+        /* ë¡œë¹„ í™”ë©´ */
         #lobbyContainer {
             background: white;
             padding: 35px;
@@ -37,10 +37,10 @@
         .btn-enter { width: 100%; padding: 12px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #27ae60; }
         .btn-enter:active { transform: translateY(2px); box-shadow: 0 1px #27ae60; }
 
-        /* °ÔÀÓ ¸ŞÀÎ È­¸é (Ä³Ä¡¸¶ÀÎµå ÀüÅë 2ºĞÇÒ ·¹ÀÌ¾Æ¿ô) */
+        /* ê²Œì„ ë©”ì¸ í™”ë©´ (ìºì¹˜ë§ˆì¸ë“œ ì „í†µ 2ë¶„í•  ë ˆì´ì•„ì›ƒ) */
         .game-container { display: none; width: 1000px; max-width: 98vw; height: 640px; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; gap: 10px; padding: 10px; }
         
-        /* ÁÂÃø: Äµ¹ö½º ¹× Åø¹Ù */
+        /* ì¢Œì¸¡: ìº”ë²„ìŠ¤ ë° íˆ´ë°” */
         .left-pane { display: flex; flex-direction: column; width: 620px; gap: 8px; }
         
         .top-info-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 12px; border: 2px solid #2980b9; border-radius: 6px; font-weight: bold; }
@@ -50,7 +50,7 @@
         .canvas-wrap { position: relative; background: white; border: 3px solid #2980b9; border-radius: 6px; overflow: hidden; }
         canvas { display: block; cursor: crosshair; background: #fff; }
 
-        /* Å¬·¡½Ä Ä³Ä¡¸¶ÀÎµå ÆÈ·¹Æ®¹Ù */
+        /* í´ë˜ì‹ ìºì¹˜ë§ˆì¸ë“œ íŒ”ë ˆíŠ¸ë°” */
         .palette-bar { display: flex; align-items: center; background: #fff; padding: 6px 10px; border: 2px solid #2980b9; border-radius: 6px; justify-content: space-between; }
         .colors { display: flex; gap: 4px; }
         .c-btn { width: 22px; height: 22px; border-radius: 3px; cursor: pointer; border: 1px solid #7f8c8d; }
@@ -58,7 +58,7 @@
         .t-btn { padding: 4px 10px; font-size: 12px; font-weight: bold; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 4px; cursor: pointer; }
         .t-btn:hover { background: #bdc3c7; }
 
-        /* ¿ìÃø: ¼øÀ§Ç¥ ¹× Ã¤ÆÃÃ¢ */
+        /* ìš°ì¸¡: ìˆœìœ„í‘œ ë° ì±„íŒ…ì°½ */
         .right-pane { display: flex; flex-direction: column; flex-grow: 1; gap: 8px; }
         
         .score-board { background: #fff; border: 2px solid #2980b9; border-radius: 6px; height: 160px; padding: 8px; overflow-y: auto; }
@@ -77,7 +77,7 @@
         .chat-input-row button { padding: 0 12px; background: #3498db; color: white; border: none; font-weight: bold; cursor: pointer; }
         .chat-input-row button:hover { background: #2980b9; }
 
-        /* ¸Ş½ÃÁö µğÀÚÀÎ ½ºÅ¸ÀÏ */
+        /* ë©”ì‹œì§€ ë””ìì¸ ìŠ¤íƒ€ì¼ */
         .m-sys { color: #c0392b; font-weight: bold; background: #fadbd8; padding: 3px 6px; border-radius: 3px; }
         .m-correct { color: #27ae60; font-weight: bold; background: #d4efdf; padding: 4px 6px; border-radius: 3px; border-left: 3px solid #27ae60; }
         .m-chat { color: #2c3e50; background: #f2f4f4; padding: 3px 6px; border-radius: 3px; }
@@ -88,41 +88,41 @@
 </head>
 <body>
 
-    <!-- ·Îºñ È­¸é -->
+    <!-- ë¡œë¹„ í™”ë©´ -->
     <div id="lobbyContainer">
-        <h1>Ä³Ä¡¸¶ÀÎµå</h1>
-        <p>Å¬·¡½Ä µå·ÎÀ× ÄûÁî °ÔÀÓ</p>
+        <h1>ìºì¹˜ë§ˆì¸ë“œ</h1>
+        <p>í´ë˜ì‹ ë“œë¡œì‰ í€´ì¦ˆ ê²Œì„</p>
         
         <div class="input-group">
-            <label>´Ğ³×ÀÓ</label>
-            <input type="text" id="nicknameInput" placeholder="´Ğ³×ÀÓÀ» ÀÔ·ÂÇÏ¼¼¿ä" maxlength="8">
+            <label>ë‹‰ë„¤ì„</label>
+            <input type="text" id="nicknameInput" placeholder="ë‹‰ë„¤ì„ì„ ì…ë ¥í•˜ì„¸ìš”" maxlength="8">
         </div>
 
         <div class="input-group">
-            <label>¹æ ¼±ÅÃ</label>
+            <label>ë°© ì„ íƒ</label>
             <div class="room-grid">
-                <button class="room-btn active" onclick="selectRoom('1¹ø¹æ', this)">1¹ø¹æ</button>
-                <button class="room-btn" onclick="selectRoom('2¹ø¹æ', this)">2¹ø¹æ</button>
-                <button class="room-btn" onclick="selectRoom('3¹ø¹æ', this)">3¹ø¹æ</button>
+                <button class="room-btn active" onclick="selectRoom('1ë²ˆë°©', this)">1ë²ˆë°©</button>
+                <button class="room-btn" onclick="selectRoom('2ë²ˆë°©', this)">2ë²ˆë°©</button>
+                <button class="room-btn" onclick="selectRoom('3ë²ˆë°©', this)">3ë²ˆë°©</button>
             </div>
         </div>
 
         <div class="custom-room-box">
-            <input type="text" id="customRoomInput" placeholder="±âÅ¸ ¹æ ¹øÈ£">
-            <button class="t-btn" onclick="joinCustomRoom()" style="background:#bdc3c7;">ÀÔÀå</button>
+            <input type="text" id="customRoomInput" placeholder="ê¸°íƒ€ ë°© ë²ˆí˜¸">
+            <button class="t-btn" onclick="joinCustomRoom()" style="background:#bdc3c7;">ì…ì¥</button>
         </div>
 
-        <button class="btn-enter" onclick="enterGame()">°ÔÀÓ ÀÔÀå</button>
+        <button class="btn-enter" onclick="enterGame()">ê²Œì„ ì…ì¥</button>
     </div>
 
-    <!-- °ÔÀÓ ¸ŞÀÎ È­¸é (ÀüÅë Ä³Ä¡¸¶ÀÎµå ¹èÄ¡) -->
+    <!-- ê²Œì„ ë©”ì¸ í™”ë©´ (ì „í†µ ìºì¹˜ë§ˆì¸ë“œ ë°°ì¹˜) -->
     <div class="game-container" id="gameArea">
-        <!-- ÁÂÃø ¿µ¿ª -->
+        <!-- ì¢Œì¸¡ ì˜ì—­ -->
         <div class="left-pane">
             <div class="top-info-bar">
-                <div class="room-badge-txt" id="roomTitleTxt" style="color:#2980b9;">[1¹ø¹æ]</div>
-                <div class="word-quiz-box" id="wordDisplay">´ë±â Áß...</div>
-                <div class="timer-box" id="timerBadge">30ÃÊ</div>
+                <div class="room-badge-txt" id="roomTitleTxt" style="color:#2980b9;">[1ë²ˆë°©]</div>
+                <div class="word-quiz-box" id="wordDisplay">ëŒ€ê¸° ì¤‘...</div>
+                <div class="timer-box" id="timerBadge">30ì´ˆ</div>
             </div>
 
             <div class="canvas-wrap">
@@ -141,27 +141,27 @@
                     <div class="c-btn" style="background:#e67e22;" onclick="setColor('#e67e22')"></div>
                 </div>
                 <div class="tools-group">
-                    <button class="t-btn" id="clearBtn">ÀüÃ¼»èÁ¦</button>
+                    <button class="t-btn" id="clearBtn">ì „ì²´ì‚­ì œ</button>
                 </div>
             </div>
         </div>
 
-        <!-- ¿ìÃø ¿µ¿ª -->
+        <!-- ìš°ì¸¡ ì˜ì—­ -->
         <div class="right-pane">
             <div class="score-board">
-                <h3>?? ½Ç½Ã°£ ¼øÀ§ (8ÅÏ ÁøÇà)</h3>
+                <h3>ğŸ† ì‹¤ì‹œê°„ ìˆœìœ„ (8í„´ ì§„í–‰)</h3>
                 <div id="playersContainer"></div>
             </div>
 
             <div class="action-panel">
-                <button class="btn-game-start" id="startBtn">°ÔÀÓ ½ÃÀÛ</button>
+                <button class="btn-game-start" id="startBtn">ê²Œì„ ì‹œì‘</button>
             </div>
 
             <div class="chat-container">
                 <div class="chat-messages" id="chatBox"></div>
                 <div class="chat-input-row">
-                    <input type="text" id="chatInput" placeholder="Á¤´ä ¶Ç´Â Ã¤ÆÃ ÀÔ·Â...">
-                    <button id="sendBtn">Àü¼Û</button>
+                    <input type="text" id="chatInput" placeholder="ì •ë‹µ ë˜ëŠ” ì±„íŒ… ì…ë ¥...">
+                    <button id="sendBtn">ì „ì†¡</button>
                 </div>
             </div>
         </div>
@@ -169,9 +169,9 @@
 
     <script>
         const wordList = [
-            "»ç°ú", "¹Ù³ª³ª", "È£¶ûÀÌ", "ÄÄÇ»ÅÍ", "½º¸¶Æ®Æù", "ÇÇÀÚ", "ºñÇà±â", "¿ìÁÖ¼±", "¿Ü°èÀÎ", "°æÂûÂ÷",
-            "¼Ò¹æ°ü", "°£È£»ç", "ÀÇ»ç", "ÇĞ±³", "¼±»ı´Ô", "¿¬ÇÊ", "Áö¿ì°³", "°¡¹æ", "¾È°æ", "½Ã°è",
-            "ÀÚÀü°Å", "¿ÀÅä¹ÙÀÌ", "±âÂ÷", "¹è", "±¸¸§", "ÅÂ¾ç", "´Ş", "º°", "¹«Áö°³", "¿ì»ê"
+            "ì‚¬ê³¼", "ë°”ë‚˜ë‚˜", "í˜¸ë‘ì´", "ì»´í“¨í„°", "ìŠ¤ë§ˆíŠ¸í°", "í”¼ì", "ë¹„í–‰ê¸°", "ìš°ì£¼ì„ ", "ì™¸ê³„ì¸", "ê²½ì°°ì°¨",
+            "ì†Œë°©ê´€", "ê°„í˜¸ì‚¬", "ì˜ì‚¬", "í•™êµ", "ì„ ìƒë‹˜", "ì—°í•„", "ì§€ìš°ê°œ", "ê°€ë°©", "ì•ˆê²½", "ì‹œê³„",
+            "ìì „ê±°", "ì˜¤í† ë°”ì´", "ê¸°ì°¨", "ë°°", "êµ¬ë¦„", "íƒœì–‘", "ë‹¬", "ë³„", "ë¬´ì§€ê°œ", "ìš°ì‚°"
         ];
 
         const firebaseConfig = {
@@ -187,7 +187,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let selectedRoom = "1¹ø¹æ";
+        let selectedRoom = "1ë²ˆë°©";
         let myName = "";
         let myScore = 0;
         let isMyTurn = false;
@@ -215,14 +215,14 @@
                 selectedRoom = val;
                 enterGame();
             } else {
-                alert("¹æ ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä!");
+                alert("ë°© ë²ˆí˜¸ë¥¼ ì…ë ¥í•˜ì„¸ìš”!");
             }
         }
 
         function enterGame() {
             let n = document.getElementById('nicknameInput').value.trim();
             if(!n) {
-                alert("´Ğ³×ÀÓÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä!");
+                alert("ë‹‰ë„¤ì„ì„ ì…ë ¥í•´ì£¼ì„¸ìš”!");
                 return;
             }
             myName = n;
@@ -298,7 +298,7 @@
                         round: 1, maxRound: 8, status: 'playing', drawer: firstDrawer, word: firstWord
                     });
                     db.ref(`rooms/${selectedRoom}/draw`).remove();
-                    db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '½Ã½ºÅÛ', msg: '°ÔÀÓÀÌ ½ÃÀÛµÇ¾ú½À´Ï´Ù! ÃÑ 8ÅÏ ÁøÇà!', type: 'sys' });
+                    db.ref(`rooms/${selectedRoom}/chat`).push({ sender: 'ì‹œìŠ¤í…œ', msg: 'ê²Œì„ì´ ì‹œì‘ë˜ì—ˆìŠµë‹ˆë‹¤! ì´ 8í„´ ì§„í–‰!', type: 'sys' });
                 });
             };
 
@@ -310,7 +310,7 @@
                 if(!text) return;
 
                 if(text === currentWord && !isMyTurn) {
-                    db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '½Ã½ºÅÛ', msg: `Á¤´äÀÔ´Ï´Ù! [${myName}] µæÁ¡! (+10)`, type: 'correct' });
+                    db.ref(`rooms/${selectedRoom}/chat`).push({ sender: 'ì‹œìŠ¤í…œ', msg: `ì •ë‹µì…ë‹ˆë‹¤! [${myName}] ë“ì ! (+10)`, type: 'correct' });
                     myScore += 10;
                     db.ref(`rooms/${selectedRoom}/players/${myName}`).update({ score: myScore });
                     nextTurn();
@@ -325,7 +325,7 @@
                 if(!d) return;
                 let div = document.createElement('div');
                 if(d.type === 'sys') {
-                    div.className = 'm-sys'; div.textContent = `[°øÁö] ${d.msg}`;
+                    div.className = 'm-sys'; div.textContent = `[ê³µì§€] ${d.msg}`;
                 } else if(d.type === 'correct') {
                     div.className = 'm-correct'; div.textContent = d.msg;
                 } else {
@@ -342,7 +342,7 @@
                     let nRound = sess.round + 1;
                     if(nRound > sess.maxRound) {
                         db.ref(`rooms/${selectedRoom}/gameSession`).update({ status: 'ended' });
-                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '½Ã½ºÅÛ', msg: '8ÅÏ °ÔÀÓ Á¾·á! ¼øÀ§¸¦ È®ÀÎÇÏ¼¼¿ä.', type: 'sys' });
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: 'ì‹œìŠ¤í…œ', msg: '8í„´ ê²Œì„ ì¢…ë£Œ! ìˆœìœ„ë¥¼ í™•ì¸í•˜ì„¸ìš”.', type: 'sys' });
                         return;
                     }
 
@@ -355,7 +355,7 @@
                             round: nRound, maxRound: 8, status: 'playing', drawer: nDrawer, word: nWord
                         });
                         db.ref(`rooms/${selectedRoom}/draw`).remove();
-                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '½Ã½ºÅÛ', msg: `[Á¦ ${nRound}ÅÏ] ÃâÁ¦ÀÚ: ${nDrawer}`, type: 'sys' });
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: 'ì‹œìŠ¤í…œ', msg: `[ì œ ${nRound}í„´] ì¶œì œì: ${nDrawer}`, type: 'sys' });
                     });
                 });
             }
@@ -364,13 +364,13 @@
                 let sess = snapshot.val();
                 if(!sess) return;
                 if(sess.status === 'waiting') {
-                    wordDisplay.textContent = "´ë±â½Ç (½ÃÀÛ ¹öÆ° Å¬¸¯)";
-                    timerBadge.textContent = "´ë±â";
+                    wordDisplay.textContent = "ëŒ€ê¸°ì‹¤ (ì‹œì‘ ë²„íŠ¼ í´ë¦­)";
+                    timerBadge.textContent = "ëŒ€ê¸°";
                     return;
                 }
                 if(sess.status === 'ended') {
-                    wordDisplay.textContent = "°ÔÀÓ Á¾·á!";
-                    timerBadge.textContent = "Á¾·á";
+                    wordDisplay.textContent = "ê²Œì„ ì¢…ë£Œ!";
+                    timerBadge.textContent = "ì¢…ë£Œ";
                     isMyTurn = false;
                     return;
                 }
@@ -380,20 +380,20 @@
 
                 if(sess.drawer === myName) {
                     isMyTurn = true;
-                    wordDisplay.textContent = `Á¦½Ã¾î: [ ${currentWord} ] (±×¸®´Â Áß)`;
+                    wordDisplay.textContent = `ì œì‹œì–´: [ ${currentWord} ] (ê·¸ë¦¬ëŠ” ì¤‘)`;
                 } else {
                     isMyTurn = false;
-                    let bl = "?".repeat(currentWord.length);
-                    wordDisplay.textContent = `Á¦½Ã¾î: ${bl} (ÃâÁ¦ÀÚ: ${sess.drawer})`;
+                    let bl = "â­".repeat(currentWord.length);
+                    wordDisplay.textContent = `ì œì‹œì–´: ${bl} (ì¶œì œì: ${sess.drawer})`;
                 }
 
                 if(timerInterval) clearInterval(timerInterval);
                 let left = 30;
-                timerBadge.textContent = `${left}ÃÊ`;
+                timerBadge.textContent = `${left}ì´ˆ`;
 
                 timerInterval = setInterval(() => {
                     left--;
-                    timerBadge.textContent = `${left}ÃÊ`;
+                    timerBadge.textContent = `${left}ì´ˆ`;
                     if(left <= 0) {
                         clearInterval(timerInterval);
                         db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
@@ -415,7 +415,7 @@
                 arr.forEach((p, idx) => {
                     let div = document.createElement('div');
                     div.className = `player-row ${p.name === myName ? 'me' : ''}`;
-                    div.innerHTML = `<span>${idx+1}µî. ${p.name}</span> <strong>${p.score}Á¡</strong>`;
+                    div.innerHTML = `<span>${idx+1}ë“±. ${p.name}</span> <strong>${p.score}ì </strong>`;
                     playersContainer.appendChild(div);
                 });
             });
