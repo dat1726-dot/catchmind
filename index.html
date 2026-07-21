@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 클래식 스타일</title>
+    <title>캐치마인드 - 프로필 & 방 현황</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -11,38 +11,41 @@
         /* 로비 화면 */
         #lobbyContainer {
             background: white;
-            padding: 35px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            width: 380px;
+            width: 400px;
             text-align: center;
             border: 3px solid #4a90e2;
         }
         #lobbyContainer h1 { font-size: 26px; color: #2c3e50; margin-bottom: 5px; }
-        #lobbyContainer p { color: #7f8c8d; font-size: 13px; margin-bottom: 20px; }
+        #lobbyContainer p { color: #7f8c8d; font-size: 13px; margin-bottom: 15px; }
         
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; font-size: 12px; font-weight: bold; color: #34495e; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 10px; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 14px; outline: none; }
+        .input-group { margin-bottom: 12px; text-align: left; }
+        .input-group label { display: block; font-size: 12px; font-weight: bold; color: #34495e; margin-bottom: 4px; }
+        .input-group input { width: 100%; padding: 8px 10px; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 14px; outline: none; }
         .input-group input:focus { border-color: #4a90e2; }
 
-        .room-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .room-btn { padding: 10px; background: #ecf0f1; border: 2px solid #bdc3c7; border-radius: 6px; font-weight: bold; cursor: pointer; color: #2c3e50; }
+        /* 아바타 선택 그리드 */
+        .avatar-grid { display: flex; justify-content: space-around; margin-bottom: 15px; }
+        .avatar-option { font-size: 24px; padding: 6px; cursor: pointer; border: 2px solid #bdc3c7; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #ecf0f1; }
+        .avatar-option.selected { border-color: #e74c3c; background: #fadbd8; transform: scale(1.1); }
+
+        .room-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+        .room-btn { padding: 10px 4px; background: #ecf0f1; border: 2px solid #bdc3c7; border-radius: 6px; font-weight: bold; cursor: pointer; color: #2c3e50; font-size: 13px; }
         .room-btn:hover { background: #dcdde1; }
         .room-btn.active { background: #4a90e2; color: white; border-color: #357abd; }
 
-        .custom-room-box { display: flex; gap: 6px; margin-bottom: 20px; }
+        .custom-room-box { display: flex; gap: 6px; margin-bottom: 15px; }
         .custom-room-box input { flex-grow: 1; padding: 8px; border: 2px solid #bdc3c7; border-radius: 6px; }
         
         .btn-enter { width: 100%; padding: 12px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #27ae60; }
         .btn-enter:active { transform: translateY(2px); box-shadow: 0 1px #27ae60; }
 
-        /* 게임 메인 화면 (캐치마인드 전통 2분할 레이아웃) */
-        .game-container { display: none; width: 1000px; max-width: 98vw; height: 640px; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; gap: 10px; padding: 10px; }
+        /* 게임 메인 화면 */
+        .game-container { display: none; width: 1000px; max-width: 98vw; height: 640px; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); gap: 10px; padding: 10px; }
         
-        /* 좌측: 캔버스 및 툴바 */
         .left-pane { display: flex; flex-direction: column; width: 620px; gap: 8px; }
-        
         .top-info-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 12px; border: 2px solid #2980b9; border-radius: 6px; font-weight: bold; }
         .word-quiz-box { font-size: 18px; color: #c0392b; letter-spacing: 1px; }
         .timer-box { font-size: 15px; color: #e67e22; background: #fef5e7; padding: 3px 10px; border-radius: 15px; border: 1px solid #f39c12; }
@@ -50,7 +53,6 @@
         .canvas-wrap { position: relative; background: white; border: 3px solid #2980b9; border-radius: 6px; overflow: hidden; }
         canvas { display: block; cursor: crosshair; background: #fff; }
 
-        /* 클래식 캐치마인드 팔레트바 */
         .palette-bar { display: flex; align-items: center; background: #fff; padding: 6px 10px; border: 2px solid #2980b9; border-radius: 6px; justify-content: space-between; }
         .colors { display: flex; gap: 4px; }
         .c-btn { width: 22px; height: 22px; border-radius: 3px; cursor: pointer; border: 1px solid #7f8c8d; }
@@ -58,12 +60,10 @@
         .t-btn { padding: 4px 10px; font-size: 12px; font-weight: bold; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 4px; cursor: pointer; }
         .t-btn:hover { background: #bdc3c7; }
 
-        /* 우측: 순위표 및 채팅창 */
         .right-pane { display: flex; flex-direction: column; flex-grow: 1; gap: 8px; }
-        
         .score-board { background: #fff; border: 2px solid #2980b9; border-radius: 6px; height: 160px; padding: 8px; overflow-y: auto; }
         .score-board h3 { font-size: 13px; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 4px; margin-bottom: 6px; }
-        .player-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 6px; border-bottom: 1px dashed #ecf0f1; }
+        .player-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 6px; border-bottom: 1px dashed #ecf0f1; }
         .player-row.me { background: #ebf5fb; font-weight: bold; color: #2980b9; }
 
         .action-panel { display: flex; gap: 5px; }
@@ -77,7 +77,6 @@
         .chat-input-row button { padding: 0 12px; background: #3498db; color: white; border: none; font-weight: bold; cursor: pointer; }
         .chat-input-row button:hover { background: #2980b9; }
 
-        /* 메시지 디자인 스타일 */
         .m-sys { color: #c0392b; font-weight: bold; background: #fadbd8; padding: 3px 6px; border-radius: 3px; }
         .m-correct { color: #27ae60; font-weight: bold; background: #d4efdf; padding: 4px 6px; border-radius: 3px; border-left: 3px solid #27ae60; }
         .m-chat { color: #2c3e50; background: #f2f4f4; padding: 3px 6px; border-radius: 3px; }
@@ -91,19 +90,29 @@
     <!-- 로비 화면 -->
     <div id="lobbyContainer">
         <h1>캐치마인드</h1>
-        <p>클래식 드로잉 퀴즈 게임</p>
+        <p>프로필 & 실시간 방 인원수 확인</p>
         
+        <div class="input-group">
+            <label>아바타 선택</label>
+            <div class="avatar-grid">
+                <div class="avatar-option selected" onclick="selectAvatar('🐶', this)">🐶</div>
+                <div class="avatar-option" onclick="selectAvatar('🐱', this)">🐱</div>
+                <div class="avatar-option" onclick="selectAvatar('🦊', this)">🦊</div>
+                <div class="avatar-option" onclick="selectAvatar('🐼', this)">🐼</div>
+            </div>
+        </div>
+
         <div class="input-group">
             <label>닉네임</label>
             <input type="text" id="nicknameInput" placeholder="닉네임을 입력하세요" maxlength="8">
         </div>
 
         <div class="input-group">
-            <label>방 선택</label>
+            <label>방 선택 (실시간 인원 표시)</label>
             <div class="room-grid">
-                <button class="room-btn active" onclick="selectRoom('1번방', this)">1번방</button>
-                <button class="room-btn" onclick="selectRoom('2번방', this)">2번방</button>
-                <button class="room-btn" onclick="selectRoom('3번방', this)">3번방</button>
+                <button class="room-btn active" id="btn_1번방" onclick="selectRoom('1번방', this)">1번방 (0명)</button>
+                <button class="room-btn" id="btn_2번방" onclick="selectRoom('2번방', this)">2번방 (0명)</button>
+                <button class="room-btn" id="btn_3번방" onclick="selectRoom('3번방', this)">3번방 (0명)</button>
             </div>
         </div>
 
@@ -115,9 +124,8 @@
         <button class="btn-enter" onclick="enterGame()">게임 입장</button>
     </div>
 
-    <!-- 게임 메인 화면 (전통 캐치마인드 배치) -->
+    <!-- 게임 메인 화면 -->
     <div class="game-container" id="gameArea">
-        <!-- 좌측 영역 -->
         <div class="left-pane">
             <div class="top-info-bar">
                 <div class="room-badge-txt" id="roomTitleTxt" style="color:#2980b9;">[1번방]</div>
@@ -146,7 +154,6 @@
             </div>
         </div>
 
-        <!-- 우측 영역 -->
         <div class="right-pane">
             <div class="score-board">
                 <h3>🏆 실시간 순위 (8턴 진행)</h3>
@@ -189,6 +196,7 @@
 
         let selectedRoom = "1번방";
         let myName = "";
+        let myAvatar = "🐶";
         let myScore = 0;
         let isMyTurn = false;
         let currentWord = "";
@@ -202,6 +210,21 @@
         const wordDisplay = document.getElementById('wordDisplay');
         const playersContainer = document.getElementById('playersContainer');
         const timerBadge = document.getElementById('timerBadge');
+
+        // 로비에서 방 인원수 실시간 감지하여 버튼에 표시
+        ['1번방', '2번방', '3번방'].forEach(r => {
+            db.ref(`rooms/${r}/players`).on('value', snapshot => {
+                let count = snapshot.numChildren();
+                let btn = document.getElementById(`btn_${r}`);
+                if(btn) btn.textContent = `${r} (${count}명)`;
+            });
+        });
+
+        function selectAvatar(avatar, el) {
+            myAvatar = avatar;
+            document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
+            el.classList.add('selected');
+        }
 
         function selectRoom(rName, btn) {
             selectedRoom = rName;
@@ -230,7 +253,8 @@
             document.getElementById('gameArea').style.display = 'flex';
             document.getElementById('roomTitleTxt').textContent = `[${selectedRoom}]`;
 
-            db.ref(`rooms/${selectedRoom}/players/${myName}`).set({ score: 0 });
+            // 아바타 정보와 함께 플레이어 등록
+            db.ref(`rooms/${selectedRoom}/players/${myName}`).set({ score: 0, avatar: myAvatar });
             initClassicEngine();
         }
 
@@ -404,18 +428,19 @@
                 }, 1000);
             });
 
+            // 순위표에 아바타 반영
             db.ref(`rooms/${selectedRoom}/players`).on('value', (snapshot) => {
                 playersContainer.innerHTML = '';
                 let arr = [];
                 snapshot.forEach(child => {
-                    arr.push({ name: child.key, score: child.val().score });
+                    arr.push({ name: child.key, score: child.val().score, avatar: child.val().avatar || '🐶' });
                 });
                 arr.sort((a,b) => b.score - a.score);
 
                 arr.forEach((p, idx) => {
                     let div = document.createElement('div');
                     div.className = `player-row ${p.name === myName ? 'me' : ''}`;
-                    div.innerHTML = `<span>${idx+1}등. ${p.name}</span> <strong>${p.score}점</strong>`;
+                    div.innerHTML = `<span>${idx+1}등. ${p.avatar} ${p.name}</span> <strong>${p.score}점</strong>`;
                     playersContainer.appendChild(div);
                 });
             });
