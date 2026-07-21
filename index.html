@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 이모지 20선 & 커스텀</title>
+    <title>캐치마인드 - 전원 준비 & 이탈 방어</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
@@ -27,7 +27,6 @@
         .input-group input { width: 100%; padding: 8px 10px; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 14px; outline: none; }
         .input-group input:focus { border-color: #4a90e2; }
 
-        /* 20가지 이모지 선택 팔레트 */
         .emoji-picker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-height: 130px; overflow-y: auto; background: #f8f9fa; padding: 6px; border: 2px solid #bdc3c7; border-radius: 6px; margin-bottom: 8px; }
         .emoji-option { font-size: 22px; padding: 4px; cursor: pointer; border: 2px solid transparent; border-radius: 4px; text-align: center; background: white; transition: transform 0.1s; }
         .emoji-option:hover { transform: scale(1.15); background: #eef2f5; }
@@ -53,6 +52,9 @@
         .profile-avatar { font-size: 22px; margin-bottom: 2px; }
         .profile-name { font-size: 11px; font-weight: bold; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .profile-score { font-size: 11px; color: #e67e22; font-weight: bold; }
+        .ready-badge { position: absolute; top: 4px; right: 4px; font-size: 10px; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
+        .ready-badge.on { background: #2ecc71; color: white; }
+        .ready-badge.off { background: #95a5a6; color: white; }
 
         .center-pane { display: flex; flex-direction: column; width: 520px; gap: 6px; flex-grow: 1; }
         .top-info-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px 10px; border: 2px solid #2980b9; border-radius: 6px; font-weight: bold; }
@@ -71,8 +73,9 @@
 
         .right-pane { display: flex; flex-direction: column; width: 220px; gap: 6px; }
         .action-panel { display: flex; gap: 5px; }
-        .btn-game-start { flex-grow: 1; padding: 8px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px #c0392b; }
-        .btn-game-start:active { transform: translateY(1px); box-shadow: none; }
+        .btn-game-ready { flex-grow: 1; padding: 8px; background: #f39c12; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px #d68910; }
+        .btn-game-ready.ready { background: #27ae60; box-shadow: 0 2px #1e8449; }
+        .btn-game-ready:active { transform: translateY(1px); box-shadow: none; }
 
         .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #fff; border: 2px solid #2980b9; border-radius: 6px; overflow: hidden; height: 150px; }
         .chat-messages { flex-grow: 1; overflow-y: auto; padding: 6px; font-size: 11px; display: flex; flex-direction: column; gap: 4px; background: #fdfefe; }
@@ -90,7 +93,7 @@
             body { align-items: flex-start; padding: 5px; overflow-y: auto; height: auto; }
             .game-container { flex-direction: column; width: 100%; height: auto; align-items: center; }
             .side-profiles { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px; }
-            .profile-card { width: 23%; height: 60px; }
+            .profile-card { width: 23%; height: 65px; }
             .center-pane { width: 100%; }
             .right-pane { width: 100%; }
             .chat-container { height: 140px; }
@@ -104,13 +107,11 @@
     <!-- 로비 화면 -->
     <div id="lobbyContainer">
         <h1>캐치마인드</h1>
-        <p>이모지 20선 선택 & 직접 입력 커스텀</p>
+        <p>전원 준비 시스템 & 이탈 자동 방어</p>
         
         <div class="input-group">
             <label>내 아바타 이모지 (선택 또는 직접 입력)</label>
-            <div class="emoji-picker-grid" id="emojiGrid">
-                <!-- 자바스크립트로 20가지 이모지 동적 생성 -->
-            </div>
+            <div class="emoji-picker-grid" id="emojiGrid"></div>
             <input type="text" id="avatarInput" value="😎" maxlength="2" style="text-align: center; font-size: 18px; margin-top: 4px;" placeholder="직접 입력 가능">
         </div>
 
@@ -172,7 +173,7 @@
             <div class="side-profiles" id="rightProfiles"></div>
             
             <div class="action-panel">
-                <button class="btn-game-start" id="startBtn">게임 시작</button>
+                <button class="btn-game-ready" id="readyBtn" onclick="toggleReady()">준비하기 (READY)</button>
             </div>
 
             <div class="chat-container">
@@ -192,17 +193,8 @@
             "자전거", "오토바이", "기차", "배", "구름", "태양", "달", "별", "무지개", "우산"
         ];
 
-        // 20가지 다양한 이모지 리스트
-        const emojiList = [
-            "😎", "🐶", "🐱", "🦊", "🐼", "라이언", "🦄", "🐵", "로보", "👻", 
-            "💩", "🤖", "👽", "💀", "🎃", "🍎", "🍕", "⚽", "🚗", "🔥"
-        ].map(e => e.length > 2 ? "🐵" : e); // 예외 방지용 정제 (이모지 위주)
+        const cleanEmojis = ["😎", "🐶", "🐱", "🦊", "🐼", "라이언", "🦄", "🐵", "🐰", "👻", "💩", "🤖", "👽", "💀", "🎃", "🍎", "🍕", "⚽", "🚗", "🔥"].map(e => e.length > 2 ? "🐵" : e);
 
-        // 실제 20선 이모지 배열 정의
-        const niceEmojis = ["😎", "🐶", "🐱", "🦊", "🐼", "라이언", "🦄", "🐵", "로보", "👻", "💩", "🤖", "👽", "💀", "🎃", "🍎", "🍕", "⚽", "🚗", "🔥"];
-        const cleanEmojis = ["😎", "🐶", "🐱", "🦊", "🐼", "라이언", "🦄", "🐵", "🐰", "👻", "💩", "🤖", "👽", "💀", "🎃", "🍎", "🍕", "⚽", "🚗", "🔥"];
-
-        // 로비에 20개 이모지 버튼 동적 생성
         const emojiGrid = document.getElementById('emojiGrid');
         const avatarInput = document.getElementById('avatarInput');
 
@@ -236,6 +228,7 @@
         let myAvatar = "😎";
         let myScore = 0;
         let isMyTurn = false;
+        let isReady = false;
         let currentWord = "";
         let timerInterval = null;
         let drawColor = "#000000";
@@ -248,6 +241,7 @@
         const timerBadge = document.getElementById('timerBadge');
         const leftProfiles = document.getElementById('leftProfiles');
         const rightProfiles = document.getElementById('rightProfiles');
+        const readyBtn = document.getElementById('readyBtn');
 
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
@@ -305,7 +299,7 @@
 
             resizeCanvas();
 
-            db.ref(`rooms/${selectedRoom}/players/${myName}`).set({ score: 0, avatar: myAvatar });
+            db.ref(`rooms/${selectedRoom}/players/${myName}`).set({ score: 0, avatar: myAvatar, ready: false });
             
             db.ref(`rooms/${selectedRoom}/gameSession`).once('value', snapshot => {
                 if(!snapshot.exists()) {
@@ -314,6 +308,19 @@
             });
 
             initClassicEngine();
+        }
+
+        function toggleReady() {
+            isReady = !isReady;
+            db.ref(`rooms/${selectedRoom}/players/${myName}`).update({ ready: isReady });
+            
+            if(isReady) {
+                readyBtn.textContent = "준비 완료! (CANCEL)";
+                readyBtn.classList.add('ready');
+            } else {
+                readyBtn.textContent = "준비하기 (READY)";
+                readyBtn.classList.remove('ready');
+            }
         }
 
         function setColor(c) {
@@ -403,27 +410,43 @@
                 }
             });
 
-            document.getElementById('startBtn').onclick = () => {
-                db.ref(`rooms/${selectedRoom}/players`).once('value').then(snapshot => {
-                    let pObj = snapshot.val();
-                    if (!pObj) return;
-                    let updates = {};
-                    Object.keys(pObj).forEach(name => {
-                        updates[`${name}/score`] = 0;
-                    });
-                    db.ref(`rooms/${selectedRoom}/players`).update(updates);
+            // 전원 준비 감지하여 자동 시작 로직
+            db.ref(`rooms/${selectedRoom}/players`).on('value', (snapshot) => {
+                let pObj = snapshot.val();
+                if(!pObj) return;
+                let pNames = Object.keys(pObj);
+                if(pNames.length === 0) return;
 
-                    let pNames = Object.keys(pObj);
-                    let firstDrawer = pNames[0];
-                    let firstWord = wordList[Math.floor(Math.random() * wordList.length)];
-
-                    db.ref(`rooms/${selectedRoom}/gameSession`).set({
-                        round: 1, maxRound: 8, status: 'playing', drawer: firstDrawer, word: firstWord
-                    });
-                    db.ref(`rooms/${selectedRoom}/draw`).remove();
-                    db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '게임이 시작되었습니다! 총 8턴 진행!', type: 'sys' });
+                let allReady = true;
+                pNames.forEach(name => {
+                    if(!pObj[name].ready) allReady = false;
                 });
-            };
+
+                // 게임 대기 상태일 때만 전원 준비 체크 후 자동 시작
+                db.ref(`rooms/${selectedRoom}/gameSession/status`).once('value', sSnap => {
+                    let status = sSnap.val();
+                    if(status === 'waiting' && allReady && pNames.length > 0) {
+                        let updates = {};
+                        pNames.forEach(name => {
+                            updates[`${name}/score`] = 0;
+                            updates[`${name}/ready`] = false; // 준비 해제
+                        });
+                        db.ref(`rooms/${selectedRoom}/players`).update(updates);
+                        isReady = false;
+                        readyBtn.textContent = "준비하기 (READY)";
+                        readyBtn.classList.remove('ready');
+
+                        let firstDrawer = pNames[0];
+                        let firstWord = wordList[Math.floor(Math.random() * wordList.length)];
+
+                        db.ref(`rooms/${selectedRoom}/gameSession`).set({
+                            round: 1, maxRound: 8, status: 'playing', drawer: firstDrawer, word: firstWord
+                        });
+                        db.ref(`rooms/${selectedRoom}/draw`).remove();
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: '🚀 모두 준비 완료! 게임이 시작됩니다!', type: 'sys' });
+                    }
+                });
+            });
 
             document.getElementById('sendBtn').onclick = sendMsg;
             chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendMsg(); };
@@ -502,7 +525,7 @@
                 if(!sess) return;
                 
                 if(sess.status === 'waiting') {
-                    wordDisplay.textContent = "대기 중...";
+                    wordDisplay.textContent = "모두 준비하면 시작!";
                     timerBadge.textContent = "대기";
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     isMyTurn = false;
@@ -520,6 +543,18 @@
                 currentWord = sess.word;
                 currentDrawerGlobal = sess.drawer;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 핵심 방어: 현재 출제자가 방을 나갔는지 체크 후 이탈 시 즉시 다음 턴으로 넘김
+                db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
+                    let pObj = pSnap.val();
+                    if(pObj && !pObj[currentDrawerGlobal]) {
+                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `⚠️ 출제자(${currentDrawerGlobal})님이 나갔습니다! 즉시 다음 턴으로 넘어갑니다.`, type: 'sys' });
+                        if(myName === Object.keys(pObj)[0]) {
+                            nextTurn();
+                        }
+                        return;
+                    }
+                });
 
                 if(sess.drawer === myName) {
                     isMyTurn = true;
@@ -552,7 +587,12 @@
                 rightProfiles.innerHTML = '';
                 let arr = [];
                 snapshot.forEach(child => {
-                    arr.push({ name: child.key, score: child.val().score, avatar: child.val().avatar || '😎' });
+                    arr.push({ 
+                        name: child.key, 
+                        score: child.val().score, 
+                        avatar: child.val().avatar || '😎',
+                        ready: child.val().ready || false
+                    });
                 });
                 arr.sort((a,b) => b.score - a.score);
 
@@ -573,7 +613,9 @@
                 if(pData.name === drawerName) {
                     card.classList.add('active-drawer');
                 }
+                let readyTag = pData.ready ? `<div class="ready-badge on">READY</div>` : `<div class="ready-badge off">WAIT</div>`;
                 card.innerHTML = `
+                    ${readyTag}
                     <div class="profile-avatar">${pData.avatar}</div>
                     <div class="profile-name">${pData.name}</div>
                     <div class="profile-score">${pData.score}점</div>
