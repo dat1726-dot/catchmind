@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치마인드 - 완벽 마스터 에디션</title>
+    <title>캐치마인드 - 투표 시스템 & 중복 방지</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #eef2f5; color: #333; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; transition: background 0.3s; }
         body.flash-correct { background-color: #2ecc71 !important; }
 
-        /* 로비 화면 */
         #lobbyContainer { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; border: 3px solid #4a90e2; position: relative; z-index: 10; }
         #lobbyContainer h1 { font-size: 24px; color: #2c3e50; margin-bottom: 5px; }
         #lobbyContainer p { color: #7f8c8d; font-size: 13px; margin-bottom: 15px; }
@@ -29,7 +28,6 @@
         .btn-join { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #2980b9; }
         .btn-create:active, .btn-join:active { transform: translateY(2px); box-shadow: 0 1px; }
 
-        /* 게임 메인 화면 */
         .game-container { display: none; width: 1150px; max-width: 100%; background: #d7effb; border: 4px solid #2980b9; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); gap: 8px; padding: 8px; flex-direction: row; position: relative; }
         
         .side-profiles { width: 160px; display: flex; flex-direction: column; gap: 6px; justify-content: space-between; }
@@ -56,7 +54,7 @@
         .canvas-wrap { position: relative; background: white; border: 3px solid #2980b9; border-radius: 6px; overflow: hidden; width: 100%; aspect-ratio: 4 / 3; }
         canvas { display: block; width: 100%; height: 100%; cursor: crosshair; background: #fff; touch-action: none; }
 
-        .palette-bar { display: flex; align-items: center; background: #fff; padding: 6px 8px; border: 2px solid #2980b9; border-radius: 6px; flex-wrap: wrap; gap: 8px; }
+        .palette-bar { display: flex; align-items: center; background: #fff; padding: 6px 8px; border: 2px solid #2980b9; border-radius: 6px; flex-wrap: wrap; gap: 8px; justify-content: space-between; }
         .colors { display: flex; gap: 4px; }
         .c-btn { width: 22px; height: 22px; border-radius: 3px; cursor: pointer; border: 1px solid #7f8c8d; }
         .tools-group { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
@@ -83,7 +81,6 @@
         .m-chat { color: #2c3e50; background: #f2f4f4; padding: 2px 4px; border-radius: 3px; }
         .m-chat span { color: #2980b9; font-weight: bold; }
 
-        /* 시상식 포디움 오버레이 */
         #podiumModal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; border-radius: 8px; }
         #podiumModal h2 { font-size: 32px; color: #f1c40f; margin-bottom: 20px; text-shadow: 0 0 10px #f39c12; }
         .podium-container { display: flex; align-items: flex-end; gap: 10px; height: 200px; }
@@ -112,7 +109,7 @@
 
     <div id="lobbyContainer">
         <h1>캐치마인드 마스터</h1>
-        <p>게임 특화 테마 & 준비 시스템</p>
+        <p>추천 투표 & 단어 중복 방지 시스템</p>
         
         <div class="input-group">
             <div class="emoji-picker-grid" id="emojiGrid"></div>
@@ -184,6 +181,10 @@
                     <button class="t-btn" id="clearBtn">🗑️전체삭제</button>
                     <button class="t-btn" id="btnPass" onclick="passTurn()" style="background:#e74c3c; color:white; display:none;">⏭️패스</button>
                 </div>
+                <!-- 🎨 그림 추천 버튼 (정답자 외 플레이어들에게 표시) -->
+                <div>
+                    <button class="t-btn" id="btnLike" onclick="voteLike()" style="background:#f1c40f; color:#d35400; font-weight:bold; display:none;">👍 그림 추천! (0)</button>
+                </div>
             </div>
         </div>
 
@@ -206,7 +207,6 @@
     </div>
 
     <script>
-        // 진정한 게임 느낌의 테마별 단어장 리스트
         const themeWords = {
             "게임캐릭터": ["리그오브레전드", "배틀그라운드", "메이플스토리", "발로란트", "오버워치", "피카츄", "손오공", "마리오", "티모", "야스오", "포켓몬", "스타크래프트", "쿠키런", "원신", "테일즈런너"],
             "인터넷밈": ["무야호", "어쩔티비", "내면의분노", "오히려좋아", "중요한것은꺾이지않는마음", "억까", "알고보니", "영포티", "초딩", "민초단", "탕후루", "스레드", "챌린지", "숏폼", "알빠노"],
@@ -283,6 +283,7 @@
         let timerInterval = null;
         let drawColor = "#000000";
         let currentLineWidth = 3;
+        let hasVoted = false; // 이번 턴 투표 여부
 
         const canvas = document.getElementById('drawingBoard');
         const ctx = canvas.getContext('2d');
@@ -343,7 +344,7 @@
             
             if(isHost) {
                 document.getElementById('startBtn').style.display = 'block';
-                readyBtn.style.display = 'none'; // 방장은 준비 버튼 대신 시작 버튼 사용
+                readyBtn.style.display = 'none';
             }
 
             db.ref(`rooms/${selectedRoom}/gameSession/status`).once('value', sSnap => {
@@ -391,8 +392,6 @@
                 
                 let pNames = Object.keys(pObj);
                 let nonHosts = pNames.filter(n => !pObj[n].host);
-                
-                // 방장 제외 전원 준비 완료 검사 (혼자 테스트할 땐 방장만 있어도 시작 가능하게 예외 처리)
                 let allReady = nonHosts.every(n => pObj[n].ready) || pNames.length === 1;
                 if(!allReady) {
                     alert("아직 준비하지 않은 팀원이 있습니다!");
@@ -410,11 +409,14 @@
 
                 db.ref(`rooms/${selectedRoom}/settings/theme`).once('value', tSnap => {
                     let theme = tSnap.val() || "게임캐릭터";
-                    let wList = themeWords[theme] || themeWords["게임캐릭터"];
-                    let firstWord = wList[Math.floor(Math.random() * wList.length)];
+                    let wList = [...(themeWords[theme] || themeWords["게임캐릭터"])];
+                    
+                    // 첫 단어 뽑기 및 사용된 단어 목록 초기화
+                    let idx = Math.floor(Math.random() * wList.length);
+                    let firstWord = wList.splice(idx, 1)[0];
                     
                     db.ref(`rooms/${selectedRoom}/gameSession`).set({ 
-                        round: 1, maxRound: 8, status: 'playing', drawer: pNames[0], word: firstWord, theme: theme 
+                        round: 1, maxRound: 8, status: 'playing', drawer: pNames[0], word: firstWord, theme: theme, usedWords: [firstWord], likes: 0 
                     });
                     db.ref(`rooms/${selectedRoom}/draw`).remove();
                     db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `🚀 방장(${myName})이 게임을 시작했습니다! (테마: ${theme})`, type: 'sys' });
@@ -441,6 +443,17 @@
             if(!isMyTurn) return;
             db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `⏭️ 출제자가 단어를 패스했습니다! (정답: ${currentWord})`, type: 'sys' });
             nextTurn();
+        }
+
+        // 👍 그림 추천 투표 기능
+        function voteLike() {
+            if(isMyTurn || isSpectator || hasVoted) return;
+            hasVoted = true;
+            db.ref(`rooms/${selectedRoom}/gameSession/likes`).transaction(currentLikes => {
+                return (currentLikes || 0) + 1;
+            });
+            document.getElementById('btnLike').style.background = '#27ae60';
+            document.getElementById('btnLike').style.color = 'white';
         }
 
         function initEngine() {
@@ -536,15 +549,28 @@
                         db.ref(`rooms/${selectedRoom}/players/${myName}`).update({ score: (s.val()||0) + guesserScore });
                     });
                     
-                    let drawerName = currentDrawerGlobal;
-                    if(drawerName) {
-                        db.ref(`rooms/${selectedRoom}/players/${drawerName}/score`).once('value').then(ds => {
-                            db.ref(`rooms/${selectedRoom}/players/${drawerName}`).update({ score: (ds.val()||0) + 5 });
+                    // 출제자 보너스 판정 (과반수 추천 검증)
+                    db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
+                        let pObj = pSnap.val();
+                        let activePlayers = Object.keys(pObj).filter(n => pObj[n].role !== 'spectator');
+                        let totalVoters = activePlayers.length - 1; // 출제자 제외 인원
+                        let requiredVotes = Math.ceil(totalVoters / 2); // 과반수 기준
+
+                        db.ref(`rooms/${selectedRoom}/gameSession/likes`).once('value').then(lSnap => {
+                            let currentLikes = lSnap.val() || 0;
+                            let drawerName = currentDrawerGlobal;
+
+                            if(drawerName && totalVoters > 0 && currentLikes >= requiredVotes) {
+                                db.ref(`rooms/${selectedRoom}/players/${drawerName}/score`).once('value').then(ds => {
+                                    db.ref(`rooms/${selectedRoom}/players/${drawerName}`).update({ score: (ds.val()||0) + 10 });
+                                });
+                                db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `🎨 [추천 과반수 달성!] 그림을 잘 그린 출제자(${drawerName}) 보너스 +10점 획득! (추천 ${currentLikes}표)`, type: 'correct' });
+                            } else if(drawerName) {
+                                db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `💡 추천수(${currentLikes}표)가 과반수(${requiredVotes}표)를 넘지 못해 출제자 보너스는 아쉽게 불발되었습니다!`, type: 'hint' });
+                            }
+                            nextTurn();
                         });
-                        db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `🖌️ 그림을 잘 그린 출제자(${drawerName}) 보너스 +5점!`, type: 'hint' });
-                    }
-                    
-                    nextTurn();
+                    });
                 } else {
                     db.ref(`rooms/${selectedRoom}/chat`).push({ sender: myName, msg: text, type: 'chat' });
                 }
@@ -590,10 +616,25 @@
                         if(avail.length === 0) avail = validPlayers;
 
                         let nDrawer = avail[Math.floor(Math.random() * avail.length)];
-                        let wList = themeWords[sess.theme] || themeWords["게임캐릭터"];
-                        let nWord = wList[Math.floor(Math.random() * wList.length)];
+                        
+                        // 🌟 중복 방지 단어 뽑기 로직
+                        let fullList = themeWords[sess.theme] || themeWords["게임캐릭터"];
+                        let used = sess.usedWords || [];
+                        let availableWords = fullList.filter(w => !used.includes(w));
+                        
+                        // 만약 단어를 다 썼다면 사용 기록 리셋
+                        if(availableWords.length === 0) {
+                            used = [];
+                            availableWords = [...fullList];
+                        }
 
-                        db.ref(`rooms/${selectedRoom}/gameSession`).set({ round: nRound, maxRound: 8, status: 'playing', drawer: nDrawer, word: nWord, theme: sess.theme });
+                        let wIdx = Math.floor(Math.random() * availableWords.length);
+                        let nWord = availableWords[wIdx];
+                        used.push(nWord);
+
+                        db.ref(`rooms/${selectedRoom}/gameSession`).set({ 
+                            round: nRound, maxRound: 8, status: 'playing', drawer: nDrawer, word: nWord, theme: sess.theme, usedWords: used, likes: 0 
+                        });
                         db.ref(`rooms/${selectedRoom}/draw`).remove();
                         db.ref(`rooms/${selectedRoom}/chat`).push({ sender: '시스템', msg: `[제 ${nRound}턴] 출제자: ${nDrawer}`, type: 'sys' });
                         playStartSound();
@@ -612,6 +653,7 @@
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     isMyTurn = false;
                     document.getElementById('btnPass').style.display = 'none';
+                    document.getElementById('btnLike').style.display = 'none';
                     if(isHost) document.getElementById('startBtn').style.display = 'block';
                     if(timerInterval) clearInterval(timerInterval);
                     return;
@@ -623,6 +665,7 @@
                     isMyTurn = false;
                     document.getElementById('btnPass').style.display = 'none';
                     document.getElementById('startBtn').style.display = 'none';
+                    document.getElementById('btnLike').style.display = 'none';
                     if(timerInterval) clearInterval(timerInterval);
                     
                     db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
@@ -636,6 +679,12 @@
                 currentDrawerGlobal = sess.drawer;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+                // 턴이 바뀔 때 투표 상태 초기화
+                hasVoted = false;
+                let likeBtn = document.getElementById('btnLike');
+                likeBtn.style.background = '#f1c40f';
+                likeBtn.style.color = '#d35400';
+
                 db.ref(`rooms/${selectedRoom}/players`).once('value').then(pSnap => {
                     let pObj = pSnap.val();
                     if(pObj && !pObj[currentDrawerGlobal]) {
@@ -647,13 +696,21 @@
                 if(sess.drawer === myName) {
                     isMyTurn = true;
                     document.getElementById('btnPass').style.display = 'inline-block';
+                    document.getElementById('btnLike').style.display = 'none'; // 출제자는 내 그림에 추천 불가
                     wordDisplay.textContent = `제시어: [ ${currentWord} ] (그리는 중)`;
                 } else {
                     isMyTurn = false;
                     document.getElementById('btnPass').style.display = 'none';
+                    if(!isSpectator) document.getElementById('btnLike').style.display = 'inline-block'; // 맞히는 사람들에게만 보임
                     let bl = "⭐".repeat(currentWord.length);
                     wordDisplay.textContent = `제시어: ${bl} (출제: ${sess.drawer})`;
                 }
+
+                // 실시간 추천수 카운트 연동
+                db.ref(`rooms/${selectedRoom}/gameSession/likes`).on('value', lSnap => {
+                    let lCnt = lSnap.val() || 0;
+                    document.getElementById('btnLike').textContent = `👍 그림 추천! (${lCnt})`;
+                });
 
                 if(timerInterval) clearInterval(timerInterval);
                 let left = 30;
